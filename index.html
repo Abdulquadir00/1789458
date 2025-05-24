@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sangrow: Premier digital marketing agency specializing in SEO, PPC, social media, content marketing, email campaigns, and web design. Elevate your business today!">
+  <meta name="keywords" content="digital marketing, SEO agency, PPC advertising, social media marketing, content marketing, email marketing, web design, Sangrow">
+  <meta name="author" content="Sangrow">
+  <title>Sangrow - Digital Marketing Agency</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link href="style.css" rel="stylesheet">
+</head>
+<body class="antialiased text-gray-900">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-lg sticky top-0 z-50" aria-label="Main navigation">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <a href="/" class="flex items-center" aria-label="Sangrow Home">
+        <img src="logo.svg" alt="Sangrow Logo" class="h-12 w-auto transition-transform hover:scale-105" loading="lazy">
+      </a>
+      <div class="hidden md:flex items-center space-x-10">
+        <a href="#home" class="nav-link text-gray-800 text-lg font-semibold flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9.75L12 3l9 6.75M4.5 10.5v9.75h5.25V15h4.5v5.25H19.5V10.5" />
+          </svg>
+          Home
+        </a>
+        <a href="#services" class="nav-link text-gray-800 text-lg font-semibold flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17.25v-6h4.5v6m3-12H6.75a1.5 1.5 0 00-1.5 1.5v12.75a1.5 1.5 0 001.5 1.5h12.75a1.5 1.5 0 001.5-1.5V6.75a1.5 1.5 0 00-1.5-1.5z" />
+          </svg>
+          Services
+        </a>
+        <a href="#about" class="nav-link text-gray-800 text-lg font-semibold flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12c2.5 0 4.5-2 4.5-4.5S14.5 3 12 3 7.5 5 7.5 7.5 9.5 12 12 12zm0 0c-3 0-9 1.5-9 4.5V21h18v-4.5c0-3-6-4.5-9-4.5z" />
+          </svg>
+          About
+        </a>
+        <a href="#contact" class="nav-link text-gray-800 text-lg font-semibold flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10.5a8.25 8.25 0 11-16.5 0 8.25 8.25 0 0116.5 0zM15.75 15.75l3.75 3.75" />
+          </svg>
+          Contact
+        </a>
+      </div>
+      <button class="md:hidden text-gray-600 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] rounded" id="mobileMenuBtn" aria-label="Toggle mobile menu">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </div>
+    <!-- Mobile Menu -->
+    <div class="mobile-menu md:hidden fixed inset-y-0 right-0 w-3/4 max-w-xs bg-white shadow-2xl p-6 z-50" id="mobileMenu" aria-hidden="true">
+      <button class="absolute top-6 right-6 text-gray-600 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] rounded" id="closeMenuBtn" aria-label="Close mobile menu">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+      <div class="flex flex-col space-y-6 mt-16">
+        <a href="#home" class="nav-link text-lg font-semibold text-gray-800 hover:text-[var(--primary)] flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9.75L12 3l9 6.75M4.5 10.5v9.75h5.25V15h4.5v5.25H19.5V10.5" />
+          </svg>
+          Home
+        </a>
+        <a href="#services" class="nav-link text-lg font-semibold text-gray-800 hover:text-[var(--primary)] flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17.25v-6h4.5v6m3-12H6.75a1.5 1.5 0 00-1.5 1.5v12.75a1.5 1.5 0 001.5 1.5h12.75a1.5 1.5 0 001.5-1.5V6.75a1.5 1.5 0 00-1.5-1.5z" />
+          </svg>
+          Services
+        </a>
+        <a href="#about" class="nav-link text-lg font-semibold text-gray-800 hover:text-[var(--primary)] flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12c2.5 0 4.5-2 4.5-4.5S14.5 3 12 3 7.5 5 7.5 7.5 9.5 12 12 12zm0 0c-3 0-9 1.5-9 4.5V21h18v-4.5c0-3-6-4.5-9-4.5z" />
+          </svg>
+          About
+        </a>
+        <a href="#contact" class="nav-link text-lg font-semibold text-gray-800 hover:text-[var(--primary)] flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10.5a8.25 8.25 0 11-16.5 0 8.25 8.25 0 0116.5 0zM15.75 15.75l3.75 3.75" />
+          </svg>
+          Contact
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="home" class="relative min-h-screen flex items-center justify-center text-white py-32 text-center overflow-hidden" aria-label="Hero section">
+    <video class="hero-video" autoplay loop muted playsinline poster="hero-poster.jpg">
+      <source src="hero-video.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="container mx-auto px-6 relative z-10">
+      <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">Elevate Your Business with Sangrow</h1>
+      <p class="text-lg sm:text-xl md:text-2xl mb-10 max-w-4xl mx-auto">Partner with our expert team for data-driven digital marketing solutions—SEO, PPC, social media, and more—to drive traffic, boost conversions, and maximize ROI.</p>
+      <a href="#contact" class="btn-primary text-white px-10 py-4 rounded-full font-semibold text-lg hover:scale-105 focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2">Schedule a Free Consultation</a>
+    </div>
+    <div class="absolute inset-0 bg-gray-900/50"></div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services" class="py-24 bg-gray-50">
+    <div class="container mx-auto px-6">
+      <h2 class="text-4xl font-bold text-center mb-16 text-gray-800">Our Expertise</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <article class="bg-white p-8 rounded-xl shadow-md service-card">
+          <h3 class="text-2xl font-semibold mb-4 text-[var(--primary)]">Search Engine Optimization (SEO)</h3>
+          <p class="mb-4 text-gray-600">Achieve top search engine rankings with our comprehensive SEO strategies, including keyword research, on-page optimization, high-quality link building, and technical enhancements.</p>
+          <p class="text-gray-500 text-sm"><strong>Impact:</strong> Sustainable organic growth and increased visibility.</p>
+          <a href="#contact" class="text-[var(--primary)] hover:text-[var(--primary-dark)] mt-4 inline-block font-medium">Explore SEO</a>
+        </article>
+        <article class="bg-white p-8 rounded-xl shadow-md service-card">
+          <h3 class="text-2xl font-semibold mb-4 text-[var(--primary)]">Pay-Per-Click (PPC) Advertising</h3>
+          <p class="mb-4 text-gray-600">Drive immediate results with targeted PPC campaigns across Google Ads, Bing, and social platforms, optimized for maximum ROI through precise ad creation and conversion tracking.</p>
+          <p class="text-gray-500 text-sm"><strong>Impact:</strong> Instant visibility and measurable outcomes.</p>
+          <a href="#contact" class="text-[var(--primary)] hover:text-[var(--primary-dark)] mt-4 inline-block font-medium">Explore PPC</a>
+        </article>
+        <article class="bg-white p-8 rounded-xl shadow-md service-card">
+          <h3 class="text-2xl font-semibold mb-4 text-[var(--primary)]">Social Media Marketing</h3>
+          <p class="mb-4 text-gray-600">Engage your audience on platforms like Instagram, LinkedIn, and TikTok with compelling content, targeted ads, and community management to build brand loyalty.</p>
+          <p class="text-gray-500 text-sm"><strong>Impact:</strong> Enhanced brand presence and customer engagement.</p>
+          <a href="#contact" class="text-[var(--primary)] hover:text-[var(--primary-dark)] mt-4 inline-block font-medium">Explore Social</a>
+        </article>
+        <article class="bg-white p-8 rounded-xl shadow-md service-card">
+          <h3 class="text-2xl font-semibold mb-4 text-[var(--primary)]">Content Marketing</h3>
+          <p class="mb-4 text-gray-600">Captivate your audience with strategic content—blogs, whitepapers, videos—that aligns with SEO goals and guides prospects through the sales funnel.</p>
+          <p class="text-gray-500 text-sm"><strong>Impact:</ăz
+Establish authority and nurture leads.</p>
+          <a href="#contact" class="text-[var(--primary)] hover:text-[var(--primary-dark)] mt-4 inline-block font-medium">Explore Content</a>
+        </article>
+        <article class="bg-white p-8 rounded-xl shadow-md service-card">
+          <h3 class="text-2xl font-semibold mb-4 text-[var(--primary)]">Email Marketing</h3>
+          <p class="mb-4 text-gray-600">Foster customer loyalty with personalized email campaigns, including automated sequences and newsletters, designed for high engagement and conversions.</p>
+          <p class="text-gray-500 text-sm"><strong>Impact:</strong> High ROI through direct communication.</p>
+          <a href="#contact" class="text-[var(--primary)] hover:text-[var(--primary-dark)] mt-4 inline-block font-medium">Explore Email</a>
+        </article>
+        <article class="bg-white p-8 rounded-xl shadow-md service-card">
+          <h3 class="text-2xl font-semibold mb-4 text-[var(--primary)]">Web Design & Development</h3>
+          <p class="mb-4 text-gray-600">Launch high-performing, responsive websites optimized for SEO, speed, and conversions, with intuitive UX and seamless integrations.</p>
+          <p class="text-gray-500 text-sm"><strong>Impact:</strong> Convert visitors into loyal customers.</p>
+          <a href="#contact" class="text-[var(--primary)] hover:text-[var(--primary-dark)] mt-4 inline-block font-medium">Explore Web Design</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Us Section -->
+  <section id="about" class="py-24 bg-gray-50">
+    <div class="container mx-auto px-6 text-center">
+      <h2 class="text-4xl font-bold mb-6 text-gray-800">Who We Are</h2>
+      <p class="text-lg mb-12 max-w-3xl mx-auto text-gray-600">
+        Sangrow is dedicated to empowering businesses with innovative digital marketing solutions. 
+        With over five years of expertise, 150+ successful campaigns, and a 98% client satisfaction rate, 
+        our certified professionals deliver results that matter.
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
+        <article class="bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition duration-300">
+          <p class="text-5xl font-extrabold text-[var(--primary)] mb-2">150+</p>
+          <p class="text-gray-600 font-medium text-lg">Successful Campaigns</p>
+        </article>
+        <article class="bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition duration-300">
+          <p class="text-5xl font-extrabold text-[var(--primary)] mb-2">98%</p>
+          <p class="text-gray-600 font-medium text-lg">Client Satisfaction</p>
+        </article>
+        <article class="bg-white p-8 rounded-2xl shadow-md hover:shadow-lg transition duration-300">
+          <p class="text-5xl font-extrabold text-[var(--primary)] mb-2">5+</p>
+          <p class="text-gray-600 font-medium text-lg">Years of Excellence</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Us Section -->
+<div class="py-24 bg-gray-100">
+  <div class="container mx-auto px-6">
+    <h2 class="text-4xl md:text-5xl font-extrabold text-center mb-16 text-gray-900 tracking-tight">Why Partner with Sangrow?</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+      <article class="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="mb-6 text-[var(--primary)]">
+          <i data-lucide="bar-chart" class="w-12 h-12 mx-auto"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-3 text-[var(--primary)]">Transparent Insights</h3>
+        <p class="text-gray-600 leading-relaxed">Monthly performance reports provide clear, actionable insights into your campaign success.</p>
+      </article>
+      <article class="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="mb-6 text-[var(--primary)]">
+          <i data-lucide="line-chart" class="w-12 h-12 mx-auto"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-3 text-[var(--primary)]">Data-Driven Results</h3>
+        <p class="text-gray-600 leading-relaxed">Stay ahead with data-backed strategies that maximize ROI and efficiency.</p>
+      </article>
+      <article class="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="mb-6 text-[var(--primary)]">
+          <i data-lucide="target" class="w-12 h-12 mx-auto"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-3 text-[var(--primary)]">Tailored Strategies</h3>
+        <p class="text-gray-600 leading-relaxed">We craft bespoke solutions aligned with your business goals and audience needs.</p>
+      </article>
+      <article class="bg-white rounded-xl shadow-lg p-8 text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="mb-6 text-[var(--primary)]">
+          <i data-lucide="award" class="w-12 h-12 mx-auto"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-3 text-[var(--primary)]">Certified Expertise</h3>
+        <p class="text-gray-600 leading-relaxed">Our team is certified by Google Ads, HubSpot, and Meta Business Partner programs.</p>
+      </article>
+    </div>
+  </div>
+</div>
+
+  <!-- Contact Section -->
+ <section id="contact"class="py-24 bg-gray-50">
+  <div class="container mx-auto px-4 max-w-2xl">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl font-bold text-gray-900 mb-4">Get in Touch</h2>
+      <p class="text-gray-600 text-lg">Let's discuss how we can help grow your business</p>
+    </div>
+
+    <form class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Name Input -->
+        <div class="space-y-2">
+          <label class="text-gray-700 font-medium block">Full Name *</label>
+          <div class="relative">
+            <input type="text" 
+                   class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all"
+                   placeholder="John Doe">
+            <i data-lucide="user" class="absolute right-3 top-3.5 text-gray-400"></i>
+          </div>
+        </div>
+
+        <!-- Email Input -->
+        <div class="space-y-2">
+          <label class="text-gray-700 font-medium block">Email *</label>
+          <div class="relative">
+            <input type="email" 
+                   class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all"
+                   placeholder="john@company.com">
+            <i data-lucide="mail" class="absolute right-3 top-3.5 text-gray-400"></i>
+          </div>
+        </div>
+
+        <!-- Phone Input -->
+        <div class="space-y-2">
+          <label class="text-gray-700 font-medium block">Phone</label>
+          <div class="relative">
+            <input type="tel" 
+                   class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all"
+                   placeholder="+1 (555) 000-0000">
+            <i data-lucide="phone" class="absolute right-3 top-3.5 text-gray-400"></i>
+          </div>
+        </div>
+
+        <!-- Company Input -->
+        <div class="space-y-2">
+          <label class="text-gray-700 font-medium block">Company</label>
+          <div class="relative">
+            <input type="text" 
+                   class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all"
+                   placeholder="Company Name">
+            <i data-lucide="building" class="absolute right-3 top-3.5 text-gray-400"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message Textarea -->
+      <div class="mb-8">
+        <label class="text-gray-700 font-medium block mb-2">Message *</label>
+        <textarea class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all h-40"
+                  placeholder="How can we help you?"></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" 
+              class="btn-primary w-full py-4 px-8 rounded-lg font-medium text-lg text-white hover:shadow-md transition-all">
+        <div class="flex items-center justify-center gap-2">
+          <i data-lucide="message-circle" class="w-5 h-5"></i>
+          Send Message
+        </div>
+      </button>
+
+      <!-- Alternative Contact -->
+      <div class="mt-8 text-center text-gray-600">
+        <p class="mb-4">or contact us directly:</p>
+        <div class="flex items-center justify-center gap-4">
+          <a href="mailto:info@example.com" class="flex items-center gap-2 text-[var(--primary)] hover:text-[var(--primary-dark)] transition-colors">
+            <i data-lucide="mail" class="w-5 h-5"></i>
+            info@example.com
+          </a>
+          <span class="text-gray-300">|</span>
+          <a href="tel:+1234567890" class="flex items-center gap-2 text-[var(--primary)] hover:text-[var(--primary-dark)] transition-colors">
+            <i data-lucide="phone" class="w-5 h-5"></i>
+            +1 (234) 567-890
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+  <!-- Trust Signals -->
+  <section class="py-12 bg-white">
+    <div class="container mx-auto px-6 flex justify-center space-x-12 flex-wrap">
+      <p class="text-gray-600 font-medium m-2">Google Ads Certified</p>
+      <p class="text-gray-600 font-medium m-2">HubSpot Certified</p>
+      <p class="text-gray-600 font-medium m-2">Meta Business Partner</p>
+      <p class="text-gray-600 font-medium m-2">SSL Secure | GDPR Compliant</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-white text-gray-800 py-16 border-t border-gray-200" aria-label="Footer">
+    <div class="container mx-auto px-6 text-center">
+      <a href="/" class="inline-block mb-6" aria-label="Sangrow Home">
+        <svg class="logo-svg" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg" aria-label="Sangrow Logo">
+          <rect x="0" y="10" width="40" height="30" fill="var(--primary)" rx="8"/>
+          <text x="50" y="35" font-family="Inter, sans-serif" font-size="24" font-weight="bold" fill="var(--primary)">Sangrow</text>
+        </svg>
+      </a>
+      <div class="flex justify-center space-x-8 mb-6 flex-wrap gap-4">
+        <a href="#home" class="hover:text-[var(--primary)] font-medium text-gray-800">Home</a>
+        <a href="#services" class="hover:text-[var(--primary)] font-medium text-gray-800">Services</a>
+        <a href="#about" class="hover:text-[var(--primary)] font-medium text-gray-800">About</a>
+        <a href="#contact" class="hover:text-[var(--primary)] font-medium text-gray-800">Contact</a>
+        <a href="/privacy" class="hover:text-[var(--primary)] font-medium text-gray-800">Privacy Policy</a>
+        <a href="/terms" class="hover:text-[var(--primary)] font-medium text-gray-800">Terms of Service</a>
+      </div>
+      <div class="flex justify-center space-x-8 mb-6 flex-wrap gap-4">
+        <a href="https://facebook.com/sangrow" class="text-[var(--primary)] hover:text-[var(--primary-dark)] font-medium">Facebook</a>
+        <a href="https://twitter.com/sangrow" class="text-[var(--primary)] hover:text-[var(--primary-dark)] font-medium">Twitter</a>
+        <a href="https://linkedin.com/company/sangrow" class="text-[var(--primary)] hover:text-[var(--primary-dark)] font-medium">LinkedIn</a>
+        <a href="https://instagram.com/sangrow" class="text-[var(--primary)] hover:text-[var(--primary-dark)] font-medium">Instagram</a>
+      </div>
+      <p class="text-gray-600 text-sm">123 Business Avenue, Digital City, DC 12345 | <a href="mailto:info@sangrow.com" class="text-[var(--primary)] hover:text-[var(--primary-dark)]">info@sangrow.com</a> | <a href="tel:+1234567890" class="text-[var(--primary)] hover:text-[var(--primary-dark)]">(123) 456-7890</a></p>
+      <p class="mt-4 text-gray-600 text-sm">© 2025 Sangrow, Inc. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+    <script src="https://unpkg.com/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+  <script src="script.js" defer></script>
+</body>
+</html>

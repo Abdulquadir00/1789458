@@ -517,7 +517,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </div>
   </footer>
-
+<script>document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('contact-form');
+  if (form) {
+    form.addEventListener('submit', function(event) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        'event': 'form_submission',
+        'form_id': 'contact-form',
+        'service_type': document.querySelector('select[name="service"]')?.value || 'SEO'
+      });
+    });
+  }
+});
+</script>
   <!-- External scripts -->
    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script src="https://unpkg.com/lucide@0.441.0/dist/umd/lucide.min.js" defer></script>

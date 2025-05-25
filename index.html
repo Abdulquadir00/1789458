@@ -9,6 +9,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-M64399N3');</script>
 <!-- End Google Tag Manager -->
+ <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('consent', 'default', {
+    'analytics_storage': 'denied',
+    'ad_storage': 'denied'
+  });
+</script>
   <!-- Defining character encoding and responsive viewport -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -527,6 +535,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         'form_id': 'contact-form',
         'service_type': document.querySelector('select[name="service"]')?.value || 'SEO'
       });
+    });
+  }
+});
+</script>
+ <script>document.addEventListener('DOMContentLoaded', function () {
+  const btn = document.getElementById('accept-cookies');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      gtag('consent', 'update', {
+        'analytics_storage': 'granted',
+        'ad_storage': 'granted'
+      });
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ 'event': 'consent_granted' });
     });
   }
 });

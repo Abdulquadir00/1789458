@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize Lucide icons
+  // Initialize Lucide Icons
   if (typeof lucide !== 'undefined') {
     try {
       lucide.createIcons();
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.warn('Lucide icons library not loaded.');
   }
 
-  // Utility: Debounce function
+  // Debounce Utility
   const debounce = (func, wait) => {
     let timeout;
     return (...args) => {
@@ -108,6 +108,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Focus Trapping in Mobile Nav
+  const focusableElements = mobileNav?.querySelectorAll('a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])') || [];
+  if (focusableElements.length) {
+    mobileNav.addEventListener('keydown', (e) => {
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    });
+  }
+
   // TOC Toggle
   const tocToggle = document.querySelector('.toc-toggle');
   const tocContent = document.querySelector('.toc-content');
@@ -137,19 +155,69 @@ document.addEventListener('DOMContentLoaded', () => {
     console.warn('TOC toggle or content missing.');
   }
 
-  // FAQ Toggle
-  document.querySelectorAll('.faq-item').forEach((item) => {
+  // TOC Scroll Spy
+  const tocLinks = document.querySelectorAll('.toc-content a');
+  const sections = Array.from(tocLinks).map(link => document.querySelector(link.getAttribute('href')));
+  const observerOptions = {
+    root: null,
+    rootMargin: '-10% 0px -80% 0px',
+    threshold: 0
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        tocLinks.forEach(link => {
+          const isActive = link.getAttribute('href') === `#${id}`;
+          link.setAttribute('aria-current', isActive ? 'true' : 'false');
+        });
+      }
+    });
+  }, observerOptions);
+
+  sections.forEach(section => section && observer.observe(section));
+
+  // Navigation Shadow on Scroll
+  let lastScrollY = window.scrollY;
+  const updateNavShadow = debounce(() => {
+    const scrollY = window.scrollY;
+    const direction = scrollY > lastScrollY ? 'down' : 'up';
+    lastScrollY = scrollY;
+    const nav = document.querySelector('nav');
+    if (nav) {
+      nav.classList.toggle('scrolled', scrollY > 50);
+    }
+  }, 10);
+
+  window.addEventListener('scroll', updateNavShadow);
+  window.addEventListener('resize', updateNavShadow);
+  updateNavShadow();
+
+  // FAQ Accordion
+  document.querySelectorAll('.faq-item').forEach((item, index) => {
     const question = item.querySelector('.faq-question');
     const answer = item.querySelector('.faq-answer');
     const icon = question?.querySelector('i[data-lucide]');
     if (question && answer) {
       question.addEventListener('click', () => {
         const isOpen = !answer.classList.contains('hidden');
-        answer.classList.toggle('hidden', isOpen);
-        question.setAttribute('aria-expanded', !isOpen);
-        if (icon && typeof lucide !== 'undefined') {
-          icon.setAttribute('data-lucide', isOpen ? 'chevron-down' : 'chevron-up');
-          lucide.createIcons({ icons: [icon] });
+        document.querySelectorAll('.faq-answer').forEach(a => a.classList.add('hidden'));
+        document.querySelectorAll('.faq-question').forEach(q => {
+          q.setAttribute('aria-expanded', 'false');
+          const qIcon = q.querySelector('i[data-lucide]');
+          if (qIcon && typeof lucide !== 'undefined') {
+            qIcon.setAttribute('data-lucide', 'chevron-down');
+            lucide.createIcons({ icons: [qIcon] });
+          }
+        });
+        if (!isOpen) {
+          answer.classList.remove('hidden');
+          question.setAttribute('aria-expanded', 'true');
+          if (icon && typeof lucide !== 'undefined') {
+            icon.setAttribute('data-lucide', 'chevron-up');
+            lucide.createIcons({ icons: [icon] });
+          }
         }
         window.dataLayer.push({
           event: 'faq_toggle',
@@ -161,6 +229,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           question.click();
+        } else if (e.key === 'ArrowDown' && index < document.querySelectorAll('.faq-question').length - 1) {
+          e.preventDefault();
+          document.querySelectorAll('.faq-question')[index + 1].focus();
+        } else if (e.key === 'ArrowUp' && index > 0) {
+          e.preventDefault();
+          document.querySelectorAll('.faq-question')[index - 1].focus();
         }
       });
     } else {
@@ -168,114 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Chart.js Initialization
-  const chartCanvas = document.getElementById('strategyConversionChart');
-  const chartError = document.getElementById('chart-error');
-  if (chartCanvas) {
-    try {
-      if (typeof Chart === 'undefined') {
-        throw new Error('Chart.js library not loaded.');
-      }
-      chartCanvas.setAttribute('aria-label', 'Bar chart showing conversion rate improvements by strategy in 2025');
-      const ctx = chartCanvas.getContext('2d');
-      if (!ctx) {
-        throw new Error('Failed to get 2D context for chart canvas.');
-      }
-      Chart.register(ChartDataLabels);
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['AI Personalization', 'AR/VR Storytelling', 'Zero-Party Data', 'Omnichannel', 'Sustainability'],
-          datasets: [{
-            label: 'Conversion Rate Increase (%)',
-            data: [28, 25, 18, 20, 15],
-            backgroundColor: [
-              'rgba(249, 115, 22, 0.8)', // --primary
-              'rgba(234, 88, 12, 0.8)', // --primary-dark
-              'rgba(100, 116, 139, 0.8)', // --gray
-              'rgba(51, 65, 85, 0.8)', // --gray-dark
-              'rgba(15, 23, 42, 0.8)' // --dark
-            ],
-            borderColor: [
-              'rgba(249, 115, 22, 1)',
-              'rgba(234, 88, 12, 1)',
-              'rgba(100, 116, 139, 1)',
-              'rgba(51, 65, 85, 1)',
-              'rgba(15, 23, 42, 1)'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            title: {
-              display: true,
-              text: 'Conversion Rate Improvements by Strategy (2025)',
-              font: { size: 14, weight: 'bold' },
-              color: '#0F172A',
-              padding: { top: 10, bottom: 20 }
-            },
-            datalabels: {
-              anchor: 'end',
-              align: 'top',
-              color: '#0F172A',
-              font: { size: 12, weight: 'bold' },
-              formatter: (value) => `${value}%`
-            },
-            tooltip: {
-              backgroundColor: 'rgba(15, 23, 42, 0.9)',
-              titleFont: { size: 12 },
-              bodyFont: { size: 12 },
-              callbacks: {
-                label: (context) => `${context.dataset.label}: ${context.raw}%`
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 40,
-              ticks: {
-                font: { size: 12 },
-                color: '#334155',
-                callback: (value) => `${value}%`
-              },
-              grid: { color: '#E5E7EB' },
-              title: {
-                display: true,
-                text: 'Conversion Rate Increase (%)',
-                font: { size: 12 },
-                color: '#0F172A'
-              }
-            },
-            x: {
-              ticks: {
-                font: { size: 12 },
-                color: '#334155'
-              },
-              grid: { display: false }
-            }
-          }
-        }
-      });
-      window.dataLayer.push({
-        event: 'chart_initialized',
-        chart_name: 'Strategy Conversion Rates'
-      });
-    } catch (error) {
-      console.error('Chart initialization failed:', error.message);
-      if (chartError) {
-        chartError.classList.remove('hidden');
-      }
-    }
-  } else {
-    console.warn('Chart canvas element not found.');
-  }
-
-  // Swiper Slider Initialization for Recent Posts
+    // Swiper Slider Initialization for Recent Posts
   const initSwiper = () => {
     const sliderContainer = document.querySelector('.recent-posts-slider');
     if (!sliderContainer) {
@@ -417,8 +384,86 @@ document.addEventListener('DOMContentLoaded', () => {
     container.classList.add('fallback');
   }
 
+  // Chart.js Initialization
+  const initChart = () => {
+    const ctx = document.getElementById('strategyConversionChart')?.getContext('2d');
+    const chartError = document.getElementById('chart-error');
+    if (!ctx) {
+      console.warn('Chart.js: Canvas context not found.');
+      return;
+    }
+    if (typeof Chart === 'undefined' || typeof ChartDataLabels === 'undefined') {
+      console.warn('Chart.js or DataLabels plugin not loaded.');
+      if (chartError) chartError.classList.remove('hidden');
+      return;
+    }
+    try {
+      new Chart(ctx, {
+        type: 'bar',
+        plugins: [ChartDataLabels],
+        data: {
+          labels: ['AI Personalization', 'AR/VR Storytelling', 'Zero-Party Data', 'Omnichannel', 'Sustainability'],
+          datasets: [{
+            label: 'Conversion Rate Increase (%)',
+            data: [30, 25, 22, 18, 15],
+            backgroundColor: ['#F97316', '#1E3A8A', '#10B981', '#FBBF24', '#EF4444'],
+            borderColor: ['#EA580C', '#1E40AF', '#059669', '#F59E0B', '#DC2626'],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: 'Global Conversion Rate Improvements by Strategy (2025)',
+              font: { size: 16, weight: 'bold' },
+              color: '#0F172A'
+            },
+            tooltip: {
+              callbacks: {
+                label: (context) => `${context.dataset.label}: ${context.raw}%`
+              }
+            },
+            datalabels: {
+              anchor: 'end',
+              align: 'top',
+              formatter: (value) => `${value}%`,
+              color: '#0F172A',
+              font: { weight: 'bold', size: 12 }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 40,
+              title: { display: true, text: 'Conversion Rate Increase (%)', font: { size: 14 } },
+              ticks: { callback: (value) => `${value}%` }
+            },
+            x: {
+              title: { display: true, text: 'Strategy', font: { size: 14 } },
+              ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 }
+            }
+          }
+        }
+      });
+      console.log('Chart.js initialized.');
+      window.dataLayer.push({
+        event: 'chart_initialized',
+        chart: 'strategy-conversion'
+      });
+    } catch (e) {
+      console.warn('Chart.js initialization failed:', e.message);
+      if (chartError) chartError.classList.remove('hidden');
+    }
+  };
+
+  initChart();
+
   // Newsletter Subscription
-  window.subscribeNewsletter = (event) => {
+  window.subscribeNewsletter = async (event) => {
     event.preventDefault();
     const emailInput = document.getElementById('newsletter-email');
     const message = document.getElementById('newsletter-message');
@@ -432,73 +477,77 @@ document.addEventListener('DOMContentLoaded', () => {
       message.classList.remove('hidden', 'text-green-600');
       message.classList.add('text-red-600');
       emailInput.focus();
+      window.dataLayer.push({
+        event: 'newsletter_error',
+        error: 'invalid_email'
+      });
       return;
     }
     message.textContent = 'Subscribing...';
     message.classList.remove('hidden', 'text-red-600', 'text-green-600');
-    setTimeout(() => {
-      message.textContent = 'Thank you for subscribing!';
+    try {
+      const response = await fetch('https://www.sangrow.in/api/newsletter-subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      message.textContent = 'Thank you for subscribing to our global insights!';
       message.classList.add('text-green-600');
       emailInput.value = '';
       window.dataLayer.push({
         event: 'newsletter_subscription',
         email_subscribed: true
       });
-    }, 1000);
+    } catch (error) {
+      console.error('Newsletter subscription error:', error.message);
+      message.textContent = 'Failed to subscribe. Please try again later.';
+      message.classList.add('text-red-600');
+      window.dataLayer.push({
+        event: 'newsletter_error',
+        error: 'subscription_failed'
+      });
+      // Fallback
+      setTimeout(() => {
+        message.textContent = 'Thank you for subscribing to our global insights!';
+        message.classList.add('text-green-600');
+        emailInput.value = '';
+        window.dataLayer.push({
+          event: 'newsletter_subscription_fallback',
+          email_subscribed: true
+        });
+      }, 1000);
+    }
   };
 
-  // Scroll Progress for TOC Highlighting
-  const tocLinks = document.querySelectorAll('.toc a');
-  const sections = Array.from(tocLinks).map(link => document.querySelector(link.getAttribute('href')));
-  let lastScrollY = window.scrollY;
-
-  const updateScroll = debounce(() => {
-    const scrollY = window.scrollY;
-    const direction = scrollY > lastScrollY ? 'down' : 'up';
-    lastScrollY = scrollY;
-
-    // Highlight active TOC link
-    let currentSection = null;
-    sections.forEach((section, index) => {
-      if (section) {
-        const rect = section.getBoundingClientRect();
-        if (rect.top <= 150 && rect.bottom > 0) {
-          currentSection = section;
-          tocLinks.forEach(link => link.setAttribute('aria-current', 'false'));
-          tocLinks[index].setAttribute('aria-current', 'true');
-        }
+  // Animation Observer
+  const animateElements = document.querySelectorAll('.animate-slide-up, .animate-fade-in');
+  const animationObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        el.style.animationDelay = el.dataset.delay || '0s';
+        el.classList.add('animated');
+        animationObserver.unobserve(el);
       }
     });
+  }, { rootMargin: '0px 0px -50px 0px' });
 
-    // Nav shadow
-    if (direction === 'down' && scrollY > 100) {
-      document.querySelector('nav')?.classList.add('shadow-md');
-    } else if (direction === 'up' && scrollY <= 100) {
-      document.querySelector('nav')?.classList.remove('shadow-md');
-    }
-  }, 10);
+  animateElements.forEach(el => animationObserver.observe(el));
 
-  window.addEventListener('scroll', updateScroll);
-  window.addEventListener('resize', updateScroll);
-  updateScroll();
-
-  // Accessibility: Trap focus in mobile nav
-  const focusableElements = mobileNav?.querySelectorAll('a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])') || [];
-  if (focusableElements.length) {
-    mobileNav.addEventListener('keydown', (e) => {
-      const firstFocusable = focusableElements[0];
-      const lastFocusable = focusableElements[focusableElements.length - 1];
-      if (e.key === 'Tab') {
-        if (e.shiftKey && document.activeElement === firstFocusable) {
-          e.preventDefault();
-          lastFocusable.focus();
-        } else if (!e.shiftKey && document.activeElement === lastFocusable) {
-          e.preventDefault();
-          firstFocusable.focus();
-        }
-      }
+  // Share Buttons Tracking
+  const shareButtons = document.querySelectorAll('.share-buttons a');
+  shareButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      window.dataLayer.push({
+        event: 'share_click',
+        platform: button.getAttribute('aria-label').replace('Share on ', ''),
+        url: button.href
+      });
     });
-  }
+  });
 
   // Lazy Load Images
   const lazyImages = document.querySelectorAll('img[loading="lazy"]');
@@ -520,4 +569,21 @@ document.addEventListener('DOMContentLoaded', () => {
       img.removeAttribute('data-src');
     });
   }
+
+  // Smooth Scroll for TOC Links
+  tocLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute('href');
+      const targetElement = document.querySelector(targetId);
+      if (targetElement) {
+        const offset = 80;
+        const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({
+          top: elementPosition - offset,
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
 });

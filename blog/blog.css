@@ -106,9 +106,9 @@ main {
 }
 
 .consult-now-btn {
-  display: inline-block;
+  position: absolute;
   bottom: -7rem;
-  left: 1rem;
+  left: -41rem;
   z-index: 5;
   background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
   color: white;
@@ -697,7 +697,7 @@ a, button, input, [tabindex="0"] {
   main { padding-bottom: 4rem; }
   .container { padding: 0 1.25rem; }
   .logo { height: 40px; }
-  .consult-now-btn { padding: 1rem 2rem; }
+  .consult-now-btn {left: 2rem; bottom: auto; padding: 0.75rem 1.5rem; }
   .toc-toggle { display: none; }
   .toc-content { max-height: none; }
   .swiper-slide.post-card { min-width: 468px; }
@@ -709,11 +709,14 @@ a, button, input, [tabindex="0"] {
   .hero { min-height: 60vh; }
   main { padding-bottom: 5rem; }
   .logo { height: 44px; }
+  .consult-now-btn {bottom: -5rem; left:-8rem; padding: 1rem 2rem; }
+
 }
 
 @media (max-width: 639px) {
   p, li, .text-xs { font-size: 0.875rem; }
-  .consult-now-btn, .share-buttons a, .toc a { padding: 0.75rem; }
+  .consult-now-btn {bottom: -4rem; left: 0.5rem; padding: 0.5rem 1rem; font-size: 0.75rem;}
+  .share-buttons a, .toc a { padding: 0.75rem; }
   h1 { font-size: 1.75rem; }
   h2 { font-size: 1.25rem; }
   h3 { font-size: 1rem; }

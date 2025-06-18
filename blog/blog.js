@@ -1,14 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize Lucide icons with error handling
+  // Initialize Lucide icons
   if (typeof lucide !== 'undefined') {
     try {
       lucide.createIcons();
-    } catch (error) {
-      console.warn('Failed to initialize Lucide icons:', error.message);
+      console.log('Lucide icons initialized.');
+    } catch (e) {
+      console.warn('Failed to initialize Lucide icons:', e.message);
     }
   } else {
-    console.warn('Lucide icons library is not loaded. Please check the script inclusion.');
+    console.warn('Lucide icons library not loaded.');
   }
+
+  // Utility: Debounce function
+  const debounce = (func, wait) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+  };
 
   // Mobile Menu
   const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
@@ -18,9 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const hamburger = document.querySelector('.hamburger');
   const navLinks = mobileNav?.querySelectorAll('a') || [];
 
-  const toggleMobileMenu = (open) => {
+  const toggleMobileMenu = debounce((open) => {
     if (!mobileNav || !mobileNavOverlay || !hamburger || !mobileMenuBtn) {
-      console.warn('Mobile menu elements are missing.');
+      console.warn('Mobile menu elements missing.');
       return;
     }
     mobileNav.classList.toggle('open', open);
@@ -33,7 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (mobileMenuBtn) {
       mobileMenuBtn.focus();
     }
-  };
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'mobile_menu_toggle',
+      state: open ? 'open' : 'closed'
+    });
+  }, 100);
 
   if (mobileMenuBtn) {
     mobileMenuBtn.addEventListener('click', () => toggleMobileMenu(!mobileNav.classList.contains('open')));
@@ -49,8 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (mobileNavOverlay) {
     mobileNavOverlay.addEventListener('click', () => toggleMobileMenu(false));
-  } else {
-    console.warn('Mobile nav overlay not found.');
   }
 
   if (mobileNavClose) {
@@ -59,14 +72,22 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         toggleMobileMenu(false);
+      } else if (e.key === 'Tab' && !e.shiftKey) {
+        e.preventDefault();
+        navLinks[0]?.focus();
       }
     });
-  } else {
-    console.warn('Mobile nav close button not found.');
   }
 
   navLinks.forEach((link, index) => {
-    link.addEventListener('click', () => toggleMobileMenu(false));
+    link.addEventListener('click', () => {
+      toggleMobileMenu(false);
+      window.dataLayer.push({
+        event: 'nav_click',
+        link_text: link.textContent.trim(),
+        link_url: link.href
+      });
+    });
     link.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
@@ -75,18 +96,19 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (e.key === 'Tab') {
         if (index === navLinks.length - 1 && !e.shiftKey) {
           e.preventDefault();
-          mobileMenuBtn?.focus();
+          mobileNavClose?.focus();
         } else if (index === 0 && e.shiftKey) {
           e.preventDefault();
           mobileNavClose?.focus();
         }
       } else if (e.key === 'Escape') {
         toggleMobileMenu(false);
+        mobileMenuBtn?.focus();
       }
     });
   });
 
-  // TOC Toggle for Mobile
+  // TOC Toggle
   const tocToggle = document.querySelector('.toc-toggle');
   const tocContent = document.querySelector('.toc-content');
   if (tocToggle && tocContent) {
@@ -95,13 +117,15 @@ document.addEventListener('DOMContentLoaded', () => {
       tocContent.classList.toggle('open', !isOpen);
       tocToggle.setAttribute('aria-expanded', !isOpen);
       tocToggle.classList.toggle('open', !isOpen);
-      if (typeof lucide !== 'undefined') {
-        try {
-          lucide.createIcons();
-        } catch (error) {
-          console.warn('Failed to update Lucide icons for TOC:', error.message);
-        }
+      const icon = tocToggle.querySelector('i[data-lucide]');
+      if (icon && typeof lucide !== 'undefined') {
+        icon.setAttribute('data-lucide', isOpen ? 'chevron-down' : 'chevron-up');
+        lucide.createIcons({ icons: [icon] });
       }
+      window.dataLayer.push({
+        event: 'toc_toggle',
+        state: !isOpen ? 'open' : 'closed'
+      });
     });
     tocToggle.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -110,10 +134,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   } else {
-    console.warn('TOC toggle or content elements are missing.');
+    console.warn('TOC toggle or content missing.');
   }
 
-  // FAQ Toggle with Accessibility
+  // FAQ Toggle
   document.querySelectorAll('.faq-item').forEach((item) => {
     const question = item.querySelector('.faq-question');
     const answer = item.querySelector('.faq-answer');
@@ -124,15 +148,14 @@ document.addEventListener('DOMContentLoaded', () => {
         answer.classList.toggle('hidden', isOpen);
         question.setAttribute('aria-expanded', !isOpen);
         if (icon && typeof lucide !== 'undefined') {
-          try {
-            icon.setAttribute('data-lucide', isOpen ? 'chevron-down' : 'chevron-up');
-            lucide.createIcons({ icons: { [icon.getAttribute('data-lucide')]: icon } });
-          } catch (error) {
-            console.warn('Failed to update Lucide icon for FAQ:', error.message);
-          }
-        } else if (!icon) {
-          console.warn('FAQ icon element is missing for question:', question.textContent);
+          icon.setAttribute('data-lucide', isOpen ? 'chevron-down' : 'chevron-up');
+          lucide.createIcons({ icons: [icon] });
         }
+        window.dataLayer.push({
+          event: 'faq_toggle',
+          question: question.textContent.trim(),
+          state: !isOpen ? 'open' : 'closed'
+        });
       });
       question.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -141,56 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     } else {
-      console.warn('FAQ question or answer element is missing in FAQ item.');
+      console.warn('FAQ question or answer missing.');
     }
   });
-
-  // Newsletter Subscription
-  window.subscribeNewsletter = (event) => {
-    event.preventDefault();
-    const emailInput = document.getElementById('newsletter-email');
-    const message = document.getElementById('newsletter-message');
-    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-
-    if (!emailInput || !message) {
-      console.warn('Newsletter form elements are missing.');
-      return;
-    }
-
-    try {
-      if (emailInput.value && emailRegex.test(emailInput.value)) {
-        message.textContent = 'Thank you for subscribing!';
-        message.className = 'text-xs sm:text-sm text-green-400 mt-2';
-        emailInput.value = '';
-      } else {
-        message.textContent = 'Please enter a valid email address.';
-        message.className = 'text-xs sm:text-sm text-red-400 mt-2';
-      }
-      message.classList.remove('hidden');
-    } catch (error) {
-      message.textContent = 'An error occurred. Please try again.';
-      message.className = 'text-xs sm:text-sm text-red-400 mt-2';
-      message.classList.remove('hidden');
-      console.error('Newsletter subscription error:', error.message);
-    }
-  };
-
-  const emailInput = document.getElementById('newsletter-email');
-  if (emailInput) {
-    emailInput.addEventListener('input', (e) => {
-      const message = document.getElementById('newsletter-message');
-      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-      if (e.target.value && !emailRegex.test(e.target.value)) {
-        message.textContent = 'Please enter a valid email address.';
-        message.className = 'text-xs sm:text-sm text-red-400 mt-2';
-        message.classList.remove('hidden');
-      } else {
-        message.classList.add('hidden');
-      }
-    });
-  } else {
-    console.warn('Newsletter email input not found.');
-  }
 
   // Chart.js Initialization
   const chartCanvas = document.getElementById('strategyConversionChart');
@@ -198,12 +174,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (chartCanvas) {
     try {
       if (typeof Chart === 'undefined') {
-        throw new Error('Chart.js library is not loaded.');
+        throw new Error('Chart.js library not loaded.');
       }
+      chartCanvas.setAttribute('aria-label', 'Bar chart showing conversion rate improvements by strategy in 2025');
       const ctx = chartCanvas.getContext('2d');
       if (!ctx) {
-        throw new Error('Failed to get canvas 2D context.');
+        throw new Error('Failed to get 2D context for chart canvas.');
       }
+      Chart.register(ChartDataLabels);
       new Chart(ctx, {
         type: 'bar',
         data: {
@@ -211,8 +189,20 @@ document.addEventListener('DOMContentLoaded', () => {
           datasets: [{
             label: 'Conversion Rate Increase (%)',
             data: [28, 25, 18, 20, 15],
-            backgroundColor: ['#F97316', '#10B981', '#3B82F6', '#8B5CF6', '#EF4444'],
-            borderColor: ['#C2410C', '#059669', '#2563EB', '#6D28D9', '#DC2626'],
+            backgroundColor: [
+              'rgba(249, 115, 22, 0.8)', // --primary
+              'rgba(234, 88, 12, 0.8)', // --primary-dark
+              'rgba(100, 116, 139, 0.8)', // --gray
+              'rgba(51, 65, 85, 0.8)', // --gray-dark
+              'rgba(15, 23, 42, 0.8)' // --dark
+            ],
+            borderColor: [
+              'rgba(249, 115, 22, 1)',
+              'rgba(234, 88, 12, 1)',
+              'rgba(100, 116, 139, 1)',
+              'rgba(51, 65, 85, 1)',
+              'rgba(15, 23, 42, 1)'
+            ],
             borderWidth: 1
           }]
         },
@@ -220,18 +210,25 @@ document.addEventListener('DOMContentLoaded', () => {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: {
-              position: 'top',
-              labels: { color: '#1E293B', font: { size: window.innerWidth < 640 ? 10 : 12 }, usePointStyle: true }
-            },
+            legend: { display: false },
             title: {
               display: true,
               text: 'Conversion Rate Improvements by Strategy (2025)',
-              color: '#1E293B',
-              font: { size: window.innerWidth < 640 ? 12 : 14, weight: 'bold' },
-              padding: { top: 8, bottom: 16 }
+              font: { size: 14, weight: 'bold' },
+              color: '#0F172A',
+              padding: { top: 10, bottom: 20 }
+            },
+            datalabels: {
+              anchor: 'end',
+              align: 'top',
+              color: '#0F172A',
+              font: { size: 12, weight: 'bold' },
+              formatter: (value) => `${value}%`
             },
             tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
+              titleFont: { size: 12 },
+              bodyFont: { size: 12 },
               callbacks: {
                 label: (context) => `${context.dataset.label}: ${context.raw}%`
               }
@@ -240,59 +237,287 @@ document.addEventListener('DOMContentLoaded', () => {
           scales: {
             y: {
               beginAtZero: true,
-              title: { display: true, text: 'Conversion Rate Increase (%)', color: '#1E293B', font: { size: window.innerWidth < 640 ? 10 : 12 } },
-              ticks: { color: '#1E293B', font: { size: window.innerWidth < 640 ? 10 : 12 }, stepSize: 5 }
+              max: 40,
+              ticks: {
+                font: { size: 12 },
+                color: '#334155',
+                callback: (value) => `${value}%`
+              },
+              grid: { color: '#E5E7EB' },
+              title: {
+                display: true,
+                text: 'Conversion Rate Increase (%)',
+                font: { size: 12 },
+                color: '#0F172A'
+              }
             },
             x: {
-              title: { display: true, text: 'Strategy', color: '#1E293B', font: { size: window.innerWidth < 640 ? 10 : 12 } },
-              ticks: { color: '#1E293B', font: { size: window.innerWidth < 640 ? 8 : 10 }, autoSkip: false, maxRotation: 45, minRotation: 0 }
+              ticks: {
+                font: { size: 12 },
+                color: '#334155'
+              },
+              grid: { display: false }
             }
-          },
-          animation: {
-            duration: 1000,
-            easing: 'easeOutQuart'
-          },
-          ariaLabel: 'Bar chart displaying conversion rate improvements by digital marketing strategy for 2025'
+          }
         }
+      });
+      window.dataLayer.push({
+        event: 'chart_initialized',
+        chart_name: 'Strategy Conversion Rates'
       });
     } catch (error) {
       console.error('Chart initialization failed:', error.message);
       if (chartError) {
-        chartError.textContent = 'Failed to load chart. Please check your connection or refresh the page.';
         chartError.classList.remove('hidden');
       }
     }
   } else {
     console.warn('Chart canvas element not found.');
-    if (chartError) {
-      chartError.textContent = 'Chart element missing. Please contact support.';
-      chartError.classList.remove('hidden');
-    }
   }
 
-  // Parallax Effect with Enhanced Error Handling
-  const parallaxImage = document.querySelector('.parallax-img img');
-  if (parallaxImage) {
-    if (typeof simpleParallax !== 'undefined') {
-      try {
-        new simpleParallax(parallaxImage, {
-          delay: 0.6,
-          scale: 1.2,
-          orientation: 'down',
-          overflow: true,
-          customWrapper: '.parallax-img'
-        });
-        console.info('Parallax effect initialized successfully.');
-      } catch (error) {
-        console.warn('Failed to initialize parallax effect:', error.message);
-      }
-    } else {
-      console.warn('simpleParallax.js library is not loaded. Please check the script inclusion.');
-      // Fallback: Ensure image is visible without parallax
-      parallaxImage.style.transform = 'none';
-      parallaxImage.style.opacity = '1';
+  // Swiper Slider Initialization for Recent Posts
+  const initSwiper = () => {
+    const sliderContainer = document.querySelector('.recent-posts-slider');
+    if (!sliderContainer) {
+      console.warn('Swiper: Recent posts slider container not found.');
+      return;
     }
+
+    if (typeof Swiper === 'undefined') {
+      console.warn('Swiper: Library not loaded.');
+      applyFallback(sliderContainer);
+      return;
+    }
+
+    let swiperInstance = null;
+
+    const tryInitSwiper = () => {
+      try {
+        // Verify DOM structure
+        const swiperWrapper = sliderContainer.querySelector('.swiper-wrapper');
+        const slides = swiperWrapper?.querySelectorAll('.swiper-slide.post-card') || [];
+        const pagination = sliderContainer.querySelector('.swiper-pagination');
+        const nextBtn = sliderContainer.querySelector('.swiper-button-next');
+        const prevBtn = sliderContainer.querySelector('.swiper-button-prev');
+
+        console.log(`Swiper: Found ${slides.length} slides, pagination: ${!!pagination}, nextBtn: ${!!nextBtn}, prevBtn: ${!!prevBtn}`);
+
+        if (!swiperWrapper || slides.length === 0) {
+          console.warn('Swiper: Wrapper or slides missing, waiting for MutationObserver.');
+          return false;
+        }
+
+        // Initialize Swiper
+        swiperInstance = new Swiper(sliderContainer, {
+          slidesPerView: 1,
+          spaceBetween: 8,
+          loop: false, // Disabled for single slide testing
+          pagination: pagination ? { el: '.swiper-pagination', clickable: true } : false,
+          navigation: nextBtn && prevBtn ? { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } : false,
+          breakpoints: {
+            640: {
+              slidesPerView: 'auto',
+              spaceBetween: 16
+            },
+            1024: {
+              slidesPerView: 'auto',
+              spaceBetween: 16
+            },
+            1280: {
+              slidesPerView: 'auto',
+              spaceBetween: 16
+            }
+          },
+          autoplay: false, // Re-enable with { delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true }
+          speed: 600,
+          a11y: {
+            enabled: true,
+            prevSlideMessage: 'Previous post',
+            nextSlideMessage: 'Next post',
+            paginationBulletMessage: 'Go to post {{index}}'
+          },
+          grabCursor: true,
+          observer: true,
+          observeParents: true,
+          observeSlideChildren: true
+        });
+
+        console.log('Swiper: Initialized successfully:', swiperInstance);
+
+        // Enhance navigation accessibility
+        [nextBtn, prevBtn].forEach(btn => {
+          if (btn) {
+            btn.setAttribute('tabindex', '0');
+            btn.setAttribute('role', 'button');
+            btn.setAttribute('aria-label', btn.classList.contains('swiper-button-next') ? 'Next post' : 'Previous post');
+            btn.addEventListener('keydown', e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                btn.click();
+              }
+            });
+          }
+        });
+
+        // Log initialization
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: 'slider_initialized',
+          slider_name: 'Recent Posts',
+          slide_count: slides.length
+        });
+
+        // Update on resize
+        window.addEventListener('resize', debounce(() => {
+          console.log('Swiper: Updating on resize');
+          swiperInstance.update();
+        }, 100));
+
+        return true;
+      } catch (error) {
+        console.error('Swiper: Initialization failed:', error.message);
+        applyFallback(sliderContainer);
+        return false;
+      }
+    };
+
+    // Try initial initialization
+    if (tryInitSwiper()) {
+      return;
+    }
+
+    // Set up MutationObserver for dynamic slides
+    const observer = new MutationObserver((mutations) => {
+      if (tryInitSwiper()) {
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(sliderContainer, {
+      childList: true,
+      subtree: true
+    });
+
+    // Fallback after 5 seconds if no slides detected
+    setTimeout(() => {
+      if (!swiperInstance) {
+        console.warn('Swiper: No slides detected after timeout, applying fallback.');
+        applyFallback(sliderContainer);
+        observer.disconnect();
+      }
+    }, 5000);
+  };
+
+  // Start Swiper initialization with delay
+  setTimeout(() => initSwiper(), 1000);
+
+  // Fallback function
+  function applyFallback(container) {
+    console.log('Swiper: Applying fallback layout.');
+    container.classList.add('fallback');
+  }
+
+  // Newsletter Subscription
+  window.subscribeNewsletter = (event) => {
+    event.preventDefault();
+    const emailInput = document.getElementById('newsletter-email');
+    const message = document.getElementById('newsletter-message');
+    if (!emailInput || !message) {
+      console.warn('Newsletter form elements missing.');
+      return;
+    }
+    const email = emailInput.value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      message.textContent = 'Please enter a valid email address.';
+      message.classList.remove('hidden', 'text-green-600');
+      message.classList.add('text-red-600');
+      emailInput.focus();
+      return;
+    }
+    message.textContent = 'Subscribing...';
+    message.classList.remove('hidden', 'text-red-600', 'text-green-600');
+    setTimeout(() => {
+      message.textContent = 'Thank you for subscribing!';
+      message.classList.add('text-green-600');
+      emailInput.value = '';
+      window.dataLayer.push({
+        event: 'newsletter_subscription',
+        email_subscribed: true
+      });
+    }, 1000);
+  };
+
+  // Scroll Progress for TOC Highlighting
+  const tocLinks = document.querySelectorAll('.toc a');
+  const sections = Array.from(tocLinks).map(link => document.querySelector(link.getAttribute('href')));
+  let lastScrollY = window.scrollY;
+
+  const updateScroll = debounce(() => {
+    const scrollY = window.scrollY;
+    const direction = scrollY > lastScrollY ? 'down' : 'up';
+    lastScrollY = scrollY;
+
+    // Highlight active TOC link
+    let currentSection = null;
+    sections.forEach((section, index) => {
+      if (section) {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= 150 && rect.bottom > 0) {
+          currentSection = section;
+          tocLinks.forEach(link => link.setAttribute('aria-current', 'false'));
+          tocLinks[index].setAttribute('aria-current', 'true');
+        }
+      }
+    });
+
+    // Nav shadow
+    if (direction === 'down' && scrollY > 100) {
+      document.querySelector('nav')?.classList.add('shadow-md');
+    } else if (direction === 'up' && scrollY <= 100) {
+      document.querySelector('nav')?.classList.remove('shadow-md');
+    }
+  }, 10);
+
+  window.addEventListener('scroll', updateScroll);
+  window.addEventListener('resize', updateScroll);
+  updateScroll();
+
+  // Accessibility: Trap focus in mobile nav
+  const focusableElements = mobileNav?.querySelectorAll('a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])') || [];
+  if (focusableElements.length) {
+    mobileNav.addEventListener('keydown', (e) => {
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
+      }
+    });
+  }
+
+  // Lazy Load Images
+  const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+  if ('IntersectionObserver' in window) {
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src || img.src;
+          img.removeAttribute('data-src');
+          observer.unobserve(img);
+        }
+      });
+    }, { rootMargin: '0px 0px 200px 0px' });
+    lazyImages.forEach(img => imageObserver.observe(img));
   } else {
-    console.warn('Parallax image element (.parallax-img img) not found.');
+    lazyImages.forEach(img => {
+      img.src = img.dataset.src || img.src;
+      img.removeAttribute('data-src');
+    });
   }
 });

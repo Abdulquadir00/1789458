@@ -1,5 +1,6 @@
 :root {
   --primary: #F97316;
+  --primary-dark: #0c5812; /* Corrected from #EA580C */
   --primary-dark: #EA580C;
   --dark: #0F172A;
   --gray: #94A3B8;
@@ -40,7 +41,7 @@ main {
 
 .hero {
   position: relative;
-  min-height: 30vh;
+  min-height: 50vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,6 +49,21 @@ main {
   border-bottom-left-radius: 1rem;
   border-bottom-right-radius: 1rem;
   overflow: hidden;
+}
+
+.hero-image-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .hero-socials {
@@ -58,6 +74,9 @@ main {
   gap: 0.75rem;
   z-index: 2;
   animation: float 3s ease-in-out infinite;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
 }
 
 .hero-socials a {
@@ -74,33 +93,15 @@ main {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.parallax-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  will-change: transform;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
-}
-
-.parallax-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: translate3d(0, 0, 0);
-}
-
-.parallax-img::after {
+.hero .absolute.inset-0::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
 }
 
 .consult-now-btn {
   position: absolute;
-  bottom: 1rem;
+  bottom: -7rem;
   left: 1rem;
   z-index: 5;
   background: var(--primary);
@@ -118,6 +119,7 @@ main {
   background: var(--primary-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
+  outline: 2px solid var(--primary-dark);
 }
 
 nav {
@@ -144,6 +146,8 @@ nav {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
 }
 
 .desktop-nav i {
@@ -165,16 +169,15 @@ nav {
   align-items: center;
   justify-content: center;
   z-index: 60;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .hamburger {
   width: 22px;
   height: 14px;
   position: relative;
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0;
 }
 
 .hamburger span {
@@ -234,7 +237,7 @@ nav {
 .mobile-nav a:hover, .mobile-nav a:focus, .mobile-nav-close:hover, .mobile-nav-close:focus {
   background: var(--primary);
   color: white;
-  outline: 2px solid #F97316;
+  outline: 2px solid var(--primary);
 }
 
 .mobile-nav a:hover i, .mobile-nav a:focus i, .mobile-nav-close:hover i, .mobile-nav-close:focus i {
@@ -282,6 +285,12 @@ nav {
 .toc::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
 .toc::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
 
+.toc a {
+  display: block;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+}
+
 .toc a:hover, .toc a:focus {
   color: var(--primary);
   outline: 2px solid var(--primary);
@@ -317,7 +326,7 @@ nav {
 }
 
 .toc-content.open {
-  max-height: 400px;
+  max-height: 500px;
 }
 
 .strategy-item, #recent-posts .post-card, .faq-item {
@@ -336,10 +345,13 @@ nav {
 .faq-question {
   cursor: pointer;
   transition: var(--transition);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
 }
 
 .faq-question:hover, .faq-question:focus {
   color: var(--primary);
+  outline: 2px solid var(--primary);
 }
 
 .faq-answer {
@@ -399,6 +411,7 @@ footer {
 .newsletter-button:hover, .newsletter-button:focus {
   background: var(--primary-dark);
   transform: translateY(-2px);
+  outline: 2px solid var(--primary-dark);
 }
 
 .logo-img {
@@ -430,10 +443,149 @@ footer {
   100% { transform: translateY(0); }
 }
 
-/* Mobile-first media queries */
+/* Swiper Slider Styles */
+.recent-posts-slider {
+  position: relative;
+  padding-bottom: 2rem;
+  width: 100%;
+  overflow: visible; /* Allow partial slide visibility */
+}
+
+.swiper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.swiper-wrapper {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.swiper-slide.post-card {
+  width: auto; /* Let CSS control width */
+  min-width: 468px;
+  max-width: 468px;
+  margin-right: 1rem;
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow);
+  padding: 1rem;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.swiper-slide.post-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.post-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.post-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--dark);
+}
+
+.post-card p {
+  font-size: 0.875rem;
+  color: var(--gray-dark);
+  margin-bottom: 0.75rem;
+  flex-grow: 1;
+}
+
+.post-card a {
+  font-size: 0.875rem;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.post-card a:hover {
+  text-decoration: underline;
+}
+
+.swiper-button-prev, .swiper-button-next {
+  color: var(--primary);
+  background: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.swiper-button-prev:hover, .swiper-button-next:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.swiper-button-prev::after, .swiper-button-next::after {
+  font-size: 16px;
+}
+
+.swiper-pagination {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.swiper-pagination-bullet {
+  background: var(--gray);
+  opacity: 0.5;
+}
+
+.swiper-pagination-bullet-active {
+  background: var(--primary);
+  opacity: 1;
+}
+
+/* Fallback for Swiper failure */
+.recent-posts-slider.fallback .swiper-wrapper {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 16px;
+  padding-bottom: 0;
+}
+
+.recent-posts-slider.fallback .swiper-slide.post-card {
+  scroll-snap-align: start;
+  margin-right: 0;
+}
+
+.recent-posts-slider.fallback .swiper-button-prev,
+.recent-posts-slider.fallback .swiper-button-next,
+.recent-posts-slider.fallback .swiper-pagination {
+  display: none;
+}
+
+/* Chart.js Enhanced Styling */
+#strategyConversionChart {
+  max-height: 350px;
+  width: 100%;
+  border-radius: 8px;
+  background: #FFFFFF;
+}
+
+/* Media Queries */
 @media (min-width: 640px) {
   .container.flex.gap-6 { flex-direction: row; gap: 1.25rem; }
-  .toc { position: sticky; top: 4rem; width: 16rem; max-height: calc(100vh - 5rem); padding: 1rem; }
+  .toc { position: sticky; top: 4.5rem; width: 16rem; max-height: calc(100vh - 5.5rem); padding: 1rem; } /* Sticky TOC with adjusted top */
   .hero { min-height: 50vh; }
   main { padding-bottom: 3rem; }
   .container { padding: 0 0.75rem; }
@@ -441,6 +593,7 @@ footer {
   .consult-now-btn { padding: 0.75rem 1.5rem; }
   .toc-toggle { display: none; }
   .toc-content { max-height: none; }
+  .recent-posts-slider .swiper-slide { min-width: 468px; max-width: 468px; }
 }
 
 @media (min-width: 1024px) {
@@ -450,12 +603,16 @@ footer {
   main { padding-bottom: 4rem; }
   .logo { height: 44px; }
   .consult-now-btn { padding: 1rem 2rem; }
+  .recent-posts-slider .swiper-slide { min-width: 468px; max-width: 468px; }
 }
 
 @media (max-width: 639px) {
   .hero {
     min-height: 45vh;
-    padding-bottom: 4rem; /* Space for button and icons */
+    padding-bottom: 4rem;
+  }
+  .hero-image-container {
+    aspect-ratio: 16 / 9;
   }
   .hero h1 {
     font-size: 1.5rem;
@@ -464,7 +621,7 @@ footer {
   .hero p {
     font-size: 0.875rem;
     max-width: 90%;
-    margin-bottom: 1.5rem; /* Increased to avoid icon overlap */
+    margin-bottom: 1.5rem;
   }
   .hero span {
     font-size: 0.625rem;
@@ -474,28 +631,36 @@ footer {
     padding: 0.5rem;
   }
   .consult-now-btn {
-    bottom: 1rem;
-    left: 1rem; /* Bottom-left corner */
+    bottom: -5rem;
+    left: 0.5rem;
     padding: 0.5rem 1rem;
     font-size: 0.75rem;
   }
   .hero-socials {
     bottom: 1rem;
-    right: 1rem; /* Bottom-right corner */
+    right: 1rem;
     gap: 0.5rem;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 0.25rem 0.5rem;
-    border-radius: 9999px;
   }
   .hero-socials a i {
     width: 16px;
     height: 16px;
   }
-  #recent-posts .grid {
-    grid-template-columns: 1fr;
+  .swiper-slide.post-card {
+    min-width: 100%;
+    max-width: 100%;
+    margin-right: 0.5rem;
   }
   .post-card img {
-    height: 6rem;
+    height: 160px;
+  }
+  .post-card h3 {
+    font-size: 0.875rem;
+  }
+  .post-card p {
+    font-size: 0.75rem;
+  }
+  .post-card a {
+    font-size: 0.75rem;
   }
   .strategy-item, .faq-item {
     padding: 0.5rem;
@@ -521,8 +686,58 @@ footer {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .parallax-img, .animate-slide-up, .consult-now-btn, .hero-socials {
+  .animate-slide-up, .consult-now-btn, .hero-socials {
     transform: none !important;
     animation: none !important;
   }
+}
+
+/* Fallback table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+table caption {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+table th, table td {
+  border: 1px solid #E5E7EB;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+table th {
+  background: #F3F4F6;
+  font-weight: 600;
+}
+
+table tbody tr:nth-child(even) {
+  background: #F9FAFB;
+}
+
+/* Share buttons */
+.share-buttons a {
+  transition: var(--transition);
+}
+
+.share-buttons a:hover, .share-buttons a:focus {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }

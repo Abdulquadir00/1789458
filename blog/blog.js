@@ -1,14 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize Lucide Icons
+   // Initialize Lucide Icons
   if (typeof lucide !== 'undefined') {
     try {
       lucide.createIcons();
-      console.log('Lucide icons initialized.');
+      console.log('Lucide icons initialized successfully.');
     } catch (e) {
       console.warn('Failed to initialize Lucide icons:', e.message);
     }
   } else {
-    console.warn('Lucide icons library not loaded.');
+    console.warn('Lucide icons library not loaded. Check CDN inclusion.');
   }
 
   // Debounce Utility
@@ -20,6 +21,26 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   };
 
+  // Wait for Element Utility
+  const waitForElement = (selector, callback, maxAttempts = 10, interval = 500) => {
+    let attempts = 0;
+    const intervalId = setInterval(() => {
+      if (document.querySelector(selector)) {
+        clearInterval(intervalId);
+        callback();
+      } else if (attempts++ >= maxAttempts) {
+        clearInterval(intervalId);
+        console.warn(`Element ${selector} not found after ${maxAttempts} attempts.`);
+      }
+    }, interval);
+  };
+
+  // Conditional Logging for Development
+  const isDev = window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1');
+  const logWarn = (message) => {
+    if (isDev) console.warn(message);
+  };
+
   // Mobile Menu
   const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
   const mobileNav = document.querySelector('.mobile-nav');
@@ -28,9 +49,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const hamburger = document.querySelector('.hamburger');
   const navLinks = mobileNav?.querySelectorAll('a') || [];
 
+  const updateFocusableElements = () => {
+    return mobileNav?.querySelectorAll('a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])') || [];
+  };
+
   const toggleMobileMenu = debounce((open) => {
     if (!mobileNav || !mobileNavOverlay || !hamburger || !mobileMenuBtn) {
-      console.warn('Mobile menu elements missing.');
+      logWarn('Mobile menu elements missing (mobile-nav, mobile-nav-overlay, hamburger, or mobile-menu-btn).');
       return;
     }
     mobileNav.classList.toggle('open', open);
@@ -38,9 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
     hamburger.classList.toggle('open', open);
     mobileMenuBtn.setAttribute('aria-expanded', open);
     document.body.style.overflow = open ? 'hidden' : 'auto';
-    if (open && navLinks[0]) {
-      navLinks[0].focus();
-    } else if (mobileMenuBtn) {
+    if (open) {
+      const focusableElements = updateFocusableElements();
+      if (focusableElements.length) focusableElements[0].focus();
+    } else {
       mobileMenuBtn.focus();
     }
     window.dataLayer = window.dataLayer || [];
@@ -59,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   } else {
-    console.warn('Mobile menu button not found.');
+    logWarn('Mobile menu button (.mobile-menu-btn) not found.');
   }
 
   if (mobileNavOverlay) {
@@ -242,285 +268,384 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-    // Swiper Slider Initialization for Recent Posts
-  const initSwiper = () => {
-    const sliderContainer = document.querySelector('.recent-posts-slider');
-    if (!sliderContainer) {
-      console.warn('Swiper: Recent posts slider container not found.');
-      return;
+
+// Chart.js Initialization
+const chartConfigs = [
+  {
+    canvasId: 'strategyConversionChart',
+    errorId: 'chart-error',
+    title: 'Global Conversion Rate Improvements by Strategy (2025)',
+    labels: ['AI Personalization', 'AR Experiences', 'Zero-Party Data', 'Cross-Channel', 'Social Commerce'],
+    data: [22, 18, 20, 15, 25],
+    backgroundColors: [
+      'rgba(249, 115, 22, 0.8)',
+      'rgba(16, 185, 129, 0.8)',
+      'rgba(59, 130, 246, 0.8)',
+      'rgba(139, 92, 246, 0.8)',
+      'rgba(239, 68, 68, 0.8)'
+    ],
+    borderColors: [
+      'rgba(194, 65, 12, 1)',
+      'rgba(5, 150, 105, 1)',
+      'rgba(37, 99, 235, 1)',
+      'rgba(109, 40, 217, 1)',
+      'rgba(220, 38, 38, 1)'
+    ],
+    yAxisMax: 30,
+    gtmEvent: 'strategy-conversion'
+  },
+  {
+    canvasId: 'omnichannelConversionChart',
+    errorId: 'chart-error',
+    title: 'Conversion Rate Improvements by Omnichannel Strategy (2025)',
+    labels: ['AI Personalization', 'AR Integration', 'Zero-Party Data', 'Cross-Channel', 'Social Commerce'],
+    data: [22, 18, 20, 15, 25],
+    backgroundColors: [
+      'rgba(249, 115, 22, 0.8)',
+      'rgba(16, 185, 129, 0.8)',
+      'rgba(59, 130, 246, 0.8)',
+      'rgba(139, 92, 246, 0.8)',
+      'rgba(239, 68, 68, 0.8)'
+    ],
+    borderColors: [
+      'rgba(194, 65, 12, 1)',
+      'rgba(5, 150, 105, 1)',
+      'rgba(37, 99, 235, 1)',
+      'rgba(109, 40, 217, 1)',
+      'rgba(220, 38, 38, 1)'
+    ],
+    yAxisMax: 30,
+    gtmEvent: 'omnichannel-conversion'
+  },
+  {
+    canvasId: 'aiToolCostBenefitChart',
+    errorId: 'chart-error',
+    title: 'Cost-Benefit Analysis of AI Tools for Small Businesses (2025)',
+    labels: ['Jasper AI', 'Grammarly', 'ChatGPT', 'HubSpot AI', 'Pictory', 'Zapier', 'Semrush'],
+    data: [80, 20, 30, 15, 25, 40, 35],
+    backgroundColors: [
+      'rgba(249, 115, 22, 0.8)',
+      'rgba(16, 185, 129, 0.8)',
+      'rgba(59, 130, 246, 0.8)',
+      'rgba(139, 92, 246, 0.8)',
+      'rgba(239, 68, 68, 0.8)',
+      'rgba(245, 158, 11, 0.8)',
+      'rgba(34, 197, 94, 0.8)'
+    ],
+    borderColors: [
+      'rgba(194, 65, 12, 1)',
+      'rgba(5, 150, 105, 1)',
+      'rgba(37, 99, 235, 1)',
+      'rgba(109, 40, 217, 1)',
+      'rgba(220, 38, 38, 1)',
+      'rgba(217, 119, 6, 1)',
+      'rgba(21, 128, 61, 1)'
+    ],
+    yAxisMax: 100,
+    gtmEvent: 'ai-tool-cost-benefit'
+  },
+  {
+    canvasId: 'arConversionChart',
+    errorId: 'chart-error',
+    title: 'Conversion Rate Improvements by AR Marketing Strategy (2025)',
+    labels: ['Virtual Try-Ons', 'Interactive Ads', 'In-Store Navigation', 'Product Visualization', 'Gamified AR'],
+    data: [25, 28, 15, 20, 18],
+    backgroundColors: [
+      'rgba(16, 185, 129, 0.8)',
+      'rgba(249, 115, 22, 0.8)',
+      'rgba(59, 130, 246, 0.8)',
+      'rgba(139, 92, 246, 0.8)',
+      'rgba(239, 68, 68, 0.8)'
+    ],
+    borderColors: [
+      'rgba(5, 150, 105, 1)',
+      'rgba(194, 65, 12, 1)',
+      'rgba(37, 99, 235, 1)',
+      'rgba(109, 40, 217, 1)',
+      'rgba(220, 38, 38, 1)'
+    ],
+    yAxisMax: 30,
+    gtmEvent: 'ar-conversion'
+  },
+  {
+    canvasId: 'greenEngagementChart',
+    errorId: 'chart-error',
+    title: 'Engagement Rate Improvements by Green Marketing Strategy (2025)',
+    labels: ['Blockchain Transparency', 'AI Personalization', 'Circular Economy', 'Carbon Labeling', 'Experiential Campaigns'],
+    data: [20, 25, 18, 12, 15],
+    backgroundColors: [
+      'rgba(16, 185, 129, 0.8)',
+      'rgba(249, 115, 22, 0.8)',
+      'rgba(59, 130, 246, 0.8)',
+      'rgba(139, 92, 246, 0.8)',
+      'rgba(239, 68, 68, 0.8)'
+    ],
+    borderColors: [
+      'rgba(5, 150, 105, 1)',
+      'rgba(194, 65, 12, 1)',
+      'rgba(37, 99, 235, 1)',
+      'rgba(109, 40, 217, 1)',
+      'rgba(220, 38, 38, 1)'
+    ],
+    yAxisMax: 30,
+    gtmEvent: 'green-engagement'
+  }
+];
+
+const initChart = (config) => {
+  const ctx = document.getElementById(config.canvasId)?.getContext('2d');
+  const chartError = document.getElementById(config.errorId);
+  if (!ctx) {
+    console.warn(`Chart.js: Canvas context not found for ${config.canvasId}.`);
+    if (chartError) {
+      chartError.classList.remove('hidden');
+      chartError.textContent = 'Unable to load chart. Please try again later.';
     }
-
-    if (typeof Swiper === 'undefined') {
-      console.warn('Swiper: Library not loaded.');
-      applyFallback(sliderContainer);
-      return;
+    return;
+  }
+  if (typeof Chart === 'undefined' || typeof ChartDataLabels === 'undefined') {
+    console.warn('Chart.js or DataLabels plugin not loaded.');
+    if (chartError) {
+      chartError.classList.remove('hidden');
+      chartError.textContent = 'Chart library not loaded. Please check your connection.';
     }
-
-    let swiperInstance = null;
-
-    const tryInitSwiper = () => {
-      try {
-        // Verify DOM structure
-        const swiperWrapper = sliderContainer.querySelector('.swiper-wrapper');
-        const slides = swiperWrapper?.querySelectorAll('.swiper-slide.post-card') || [];
-        const pagination = sliderContainer.querySelector('.swiper-pagination');
-        const nextBtn = sliderContainer.querySelector('.swiper-button-next');
-        const prevBtn = sliderContainer.querySelector('.swiper-button-prev');
-
-        console.log(`Swiper: Found ${slides.length} slides, pagination: ${!!pagination}, nextBtn: ${!!nextBtn}, prevBtn: ${!!prevBtn}`);
-
-        if (!swiperWrapper || slides.length === 0) {
-          console.warn('Swiper: Wrapper or slides missing, waiting for MutationObserver.');
-          return false;
-        }
-
-        // Initialize Swiper
-        swiperInstance = new Swiper(sliderContainer, {
-          slidesPerView: 1,
-          spaceBetween: 8,
-          loop: false, // Disabled for single slide testing
-          pagination: pagination ? { el: '.swiper-pagination', clickable: true } : false,
-          navigation: nextBtn && prevBtn ? { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } : false,
-          breakpoints: {
-            640: {
-              slidesPerView: 'auto',
-              spaceBetween: 16
-            },
-            1024: {
-              slidesPerView: 'auto',
-              spaceBetween: 16
-            },
-            1280: {
-              slidesPerView: 'auto',
-              spaceBetween: 16
+    return;
+  }
+  try {
+    new Chart(ctx, {
+      type: 'bar',
+      plugins: [ChartDataLabels],
+      data: {
+        labels: config.labels,
+        datasets: [{
+          label: 'Benefit Metric (%)',
+          data: config.data,
+          backgroundColor: config.backgroundColors,
+          borderColor: config.borderColors,
+          borderWidth: 1,
+          borderRadius: 8,
+          barThickness: 40
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 1000,
+          easing: 'easeOutCubic'
+        },
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: config.title,
+            font: { size: 18, family: "'Inter', sans-serif", weight: 600 },
+            color: '#1E293B',
+            padding: { top: 10, bottom: 20 }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(30, 41, 59, 0.95)',
+            titleFont: { family: "'Inter', sans-serif", size: 14 },
+            bodyFont: { family: "'Inter', sans-serif", size: 12 },
+            cornerRadius: 6,
+            caretSize: 6,
+            padding: 8,
+            callbacks: {
+              label: (context) => `${context.dataset.label}: ${context.raw}%`
             }
           },
-          autoplay: false, // Re-enable with { delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true }
-          speed: 600,
-          a11y: {
-            enabled: true,
-            prevSlideMessage: 'Previous post',
-            nextSlideMessage: 'Next post',
-            paginationBulletMessage: 'Go to post {{index}}'
-          },
-          grabCursor: true,
-          observer: true,
-          observeParents: true,
-          observeSlideChildren: true
-        });
-
-        console.log('Swiper: Initialized successfully:', swiperInstance);
-
-        // Enhance navigation accessibility
-        [nextBtn, prevBtn].forEach(btn => {
-          if (btn) {
-            btn.setAttribute('tabindex', '0');
-            btn.setAttribute('role', 'button');
-            btn.setAttribute('aria-label', btn.classList.contains('swiper-button-next') ? 'Next post' : 'Previous post');
-            btn.addEventListener('keydown', e => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                btn.click();
-              }
-            });
+          datalabels: {
+            anchor: 'end',
+            align: 'top',
+            formatter: (value) => `${value}%`,
+            color: '#1E293B',
+            font: { family: "'Inter', sans-serif", weight: 700, size: 14 },
+            offset: 4
           }
-        });
-
-        // Log initialization
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({
-          event: 'slider_initialized',
-          slider_name: 'Recent Posts',
-          slide_count: slides.length
-        });
-
-        // Update on resize
-        window.addEventListener('resize', debounce(() => {
-          console.log('Swiper: Updating on resize');
-          swiperInstance.update();
-        }, 100));
-
-        return true;
-      } catch (error) {
-        console.error('Swiper: Initialization failed:', error.message);
-        applyFallback(sliderContainer);
-        return false;
-      }
-    };
-
-    // Try initial initialization
-    if (tryInitSwiper()) {
-      return;
-    }
-
-    // Set up MutationObserver for dynamic slides
-    const observer = new MutationObserver((mutations) => {
-      if (tryInitSwiper()) {
-        observer.disconnect();
-      }
-    });
-
-    observer.observe(sliderContainer, {
-      childList: true,
-      subtree: true
-    });
-
-    // Fallback after 5 seconds if no slides detected
-    setTimeout(() => {
-      if (!swiperInstance) {
-        console.warn('Swiper: No slides detected after timeout, applying fallback.');
-        applyFallback(sliderContainer);
-        observer.disconnect();
-      }
-    }, 5000);
-  };
-
-  // Start Swiper initialization with delay
-  setTimeout(() => initSwiper(), 1000);
-
-  // Fallback function
-  function applyFallback(container) {
-    console.log('Swiper: Applying fallback layout.');
-    container.classList.add('fallback');
-  }
-
-  // Chart.js Initialization
-  const initChart = () => {
-    const ctx = document.getElementById('strategyConversionChart')?.getContext('2d');
-    const chartError = document.getElementById('chart-error');
-    if (!ctx) {
-      console.warn('Chart.js: Canvas context not found.');
-      return;
-    }
-    if (typeof Chart === 'undefined' || typeof ChartDataLabels === 'undefined') {
-      console.warn('Chart.js or DataLabels plugin not loaded.');
-      if (chartError) chartError.classList.remove('hidden');
-      return;
-    }
-    try {
-      new Chart(ctx, {
-        type: 'bar',
-        plugins: [ChartDataLabels],
-        data: {
-          labels: ['AI Personalization', 'AR/VR Storytelling', 'Zero-Party Data', 'Omnichannel', 'Sustainability'],
-          datasets: [{
-            label: 'Conversion Rate Increase (%)',
-            data: [30, 25, 22, 18, 15],
-            backgroundColor: ['#F97316', '#1E3A8A', '#10B981', '#FBBF24', '#EF4444'],
-            borderColor: ['#EA580C', '#1E40AF', '#059669', '#F59E0B', '#DC2626'],
-            borderWidth: 2
-          }]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: config.yAxisMax,
+            grid: {
+              color: 'rgba(203, 213, 225, 0.3)',
+              borderDash: [4, 4]
+            },
             title: {
               display: true,
-              text: 'Global Conversion Rate Improvements by Strategy (2025)',
-              font: { size: 16, weight: 'bold' },
-              color: '#0F172A'
+              text: 'Benefit Metric (%)',
+              font: { family: "'Inter', sans-serif", size: 14, weight: 500 },
+              color: '#1E293B'
             },
-            tooltip: {
-              callbacks: {
-                label: (context) => `${context.dataset.label}: ${context.raw}%`
-              }
-            },
-            datalabels: {
-              anchor: 'end',
-              align: 'top',
-              formatter: (value) => `${value}%`,
-              color: '#0F172A',
-              font: { weight: 'bold', size: 12 }
+            ticks: {
+              font: { family: "'Inter', sans-serif", size: 12 },
+              color: '#64748B',
+              callback: (value) => `${value}%`
             }
           },
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 40,
-              title: { display: true, text: 'Conversion Rate Increase (%)', font: { size: 14 } },
-              ticks: { callback: (value) => `${value}%` }
+          x: {
+            grid: { display: false },
+            title: {
+              display: true,
+              text: 'AI Tool',
+              font: { family: "'Inter', sans-serif", size: 14, weight: 500 },
+              color: '#1E293B'
             },
-            x: {
-              title: { display: true, text: 'Strategy', font: { size: 14 } },
-              ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 }
+            ticks: {
+              font: { family: "'Inter', sans-serif", size: 12 },
+              color: '#64748B',
+              autoSkip: false,
+              maxRotation: 30,
+              minRotation: 0
             }
           }
+        },
+        layout: {
+          padding: 20
         }
-      });
-      console.log('Chart.js initialized.');
-      window.dataLayer.push({
-        event: 'chart_initialized',
-        chart: 'strategy-conversion'
-      });
-    } catch (e) {
-      console.warn('Chart.js initialization failed:', e.message);
-      if (chartError) chartError.classList.remove('hidden');
-    }
-  };
-
-  initChart();
-
-  // Newsletter Subscription
-  window.subscribeNewsletter = async (event) => {
-    event.preventDefault();
-    const emailInput = document.getElementById('newsletter-email');
-    const message = document.getElementById('newsletter-message');
-    if (!emailInput || !message) {
-      console.warn('Newsletter form elements missing.');
-      return;
-    }
-    const email = emailInput.value.trim();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      message.textContent = 'Please enter a valid email address.';
-      message.classList.remove('hidden', 'text-green-600');
-      message.classList.add('text-red-600');
-      emailInput.focus();
-      window.dataLayer.push({
-        event: 'newsletter_error',
-        error: 'invalid_email'
-      });
-      return;
-    }
-    message.textContent = 'Subscribing...';
-    message.classList.remove('hidden', 'text-red-600', 'text-green-600');
-    try {
-      const response = await fetch('https://www.sangrow.in/api/newsletter-subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      message.textContent = 'Thank you for subscribing to our global insights!';
-      message.classList.add('text-green-600');
-      emailInput.value = '';
-      window.dataLayer.push({
-        event: 'newsletter_subscription',
-        email_subscribed: true
-      });
-    } catch (error) {
-      console.error('Newsletter subscription error:', error.message);
-      message.textContent = 'Failed to subscribe. Please try again later.';
-      message.classList.add('text-red-600');
-      window.dataLayer.push({
-        event: 'newsletter_error',
-        error: 'subscription_failed'
-      });
-      // Fallback
-      setTimeout(() => {
-        message.textContent = 'Thank you for subscribing to our global insights!';
-        message.classList.add('text-green-600');
-        emailInput.value = '';
-        window.dataLayer.push({
-          event: 'newsletter_subscription_fallback',
-          email_subscribed: true
-        });
-      }, 1000);
+    });
+    console.log(`Chart.js initialized for ${config.canvasId}.`);
+    window.dataLayer.push({
+      event: 'chart_initialized',
+      chart: config.gtmEvent
+    });
+  } catch (e) {
+    console.warn(`Chart.js initialization failed for ${config.canvasId}:`, e.message);
+    if (chartError) {
+      chartError.classList.remove('hidden');
+      chartError.textContent = 'Failed to load chart. Please try again later.';
     }
-  };
+  }
+};
+
+chartConfigs.forEach(config => {
+  if (document.getElementById(config.canvasId)) {
+    waitForElement(`#${config.canvasId}`, () => initChart(config), 10, 500);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  chartConfigs.forEach(config => {
+    if (document.getElementById(config.canvasId)) {
+      initChart(config);
+    }
+  });
+});
+
+// Newsletter Subscription with EmailJS
+   window.subscribeNewsletter = function () {
+        const emailInput = document.getElementById('newsletter-email');
+        const message = document.getElementById('newsletter-message');
+        const submitBtn = document.querySelector('.newsletter-button');
+        const CONFIG = {
+            emailjs: {
+                userId: 'JQ8fQ2l-QXWp78b7U',
+                serviceId: 'service_p4dfeu6',
+                newsletterTemplateId: 'template_g6wz49w'
+            },
+            rateLimitInterval: 5000,
+            classes: {
+                hidden: 'hidden'
+            }
+        };
+
+        if (!emailInput || !message) {
+            console.warn('Newsletter form elements missing: #newsletter-email or #newsletter-message');
+            if (window.dataLayer) {
+                window.dataLayer.push({
+                    event: 'newsletter_error',
+                    error: 'missing_elements'
+                });
+            }
+            return;
+        }
+
+        if (typeof emailjs === 'undefined') {
+            console.error('EmailJS SDK v3 not loaded. Check CDN inclusion.');
+            submitBtn.disabled = true;
+            message.classList.remove(CONFIG.classes.hidden);
+            message.innerHTML = '<span class="text-red-600">Error: Unable to load email service. Please try again later.</span>';
+            return;
+        }
+
+        try {
+            emailjs.init(CONFIG.emailjs.userId);
+            console.log('EmailJS SDK v3 initialized with user ID:', CONFIG.emailjs.userId);
+        } catch (error) {
+            console.error('Failed to initialize EmailJS SDK v3:', error.message);
+            submitBtn.disabled = true;
+            message.classList.remove(CONFIG.classes.hidden);
+            message.innerHTML = '<span class="text-red-600">Error: Unable to initialize email service. Please try again later.</span>';
+            console.warn('EmailJS SDK v3 initialization failed. Verify user ID and SDK version.');
+            return;
+        }
+
+        const currentTime = Date.now();
+        let lastNewsletterSubmitTime = parseInt(localStorage.getItem('lastNewsletterSubmitTime') || '0', 10);
+
+        if (currentTime - lastNewsletterSubmitTime < CONFIG.rateLimitInterval) {
+            message.textContent = 'Please wait a few seconds before subscribing again.';
+            message.classList.remove(CONFIG.classes.hidden, 'text-green-600');
+            message.classList.add('text-red-600');
+            setTimeout(() => {
+                message.classList.add(CONFIG.classes.hidden);
+                message.textContent = '';
+            }, CONFIG.rateLimitInterval);
+            return;
+        }
+
+        const email = emailInput.value.trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            message.textContent = 'Please enter a valid email address.';
+            message.classList.remove(CONFIG.classes.hidden, 'text-green-600');
+            message.classList.add('text-red-600');
+            emailInput.focus();
+            if (window.dataLayer) {
+                window.dataLayer.push({
+                    event: 'newsletter_error',
+                    error: 'invalid_email'
+                });
+            }
+            return;
+        }
+
+        message.textContent = 'Subscribing...';
+        message.classList.remove(CONFIG.classes.hidden, 'text-red-600', 'text-green-600');
+
+        emailjs
+            .send(CONFIG.emailjs.serviceId, CONFIG.emailjs.newsletterTemplateId, { email })
+            .then((response) => {
+                console.log('Newsletter subscription successful:', response.status, response.text);
+                message.textContent = 'Thank you for subscribing to our global insights!';
+                message.classList.add('text-green-600');
+                emailInput.value = '';
+                lastNewsletterSubmitTime = Date.now();
+                localStorage.setItem('lastNewsletterSubmitTime', lastNewsletterSubmitTime.toString());
+                if (window.dataLayer) {
+                    window.dataLayer.push({
+                        event: 'newsletter_subscription',
+                        email_subscribed: true
+                    });
+                }
+            })
+            .catch((error) => {
+                console.error('Newsletter subscription error:', {
+                    message: error.message,
+                    status: error.status,
+                    text: error.text
+                });
+                message.textContent = 'Failed to subscribe. Please check your email or try again later.';
+                message.classList.add('text-red-600');
+                if (window.dataLayer) {
+                    window.dataLayer.push({
+                        event: 'newsletter_error',
+                        error: 'subscription_failed',
+                        details: error.message || 'Unknown error'
+                    });
+                }
+            });
+    };
 
   // Animation Observer
   const animateElements = document.querySelectorAll('.animate-slide-up, .animate-fade-in');

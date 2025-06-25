@@ -464,7 +464,7 @@
       }
 
       .swiper-pagination {
-        bottom: 
+        bottom:0.65rem;
 
       h2 {
         font-size: 1.375rem;
@@ -592,3 +592,4 @@
         font-size: 1.75rem;
       }
     }
+  }

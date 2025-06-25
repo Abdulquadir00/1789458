@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Populate Swiper slides with posts
   function populateSlides(posts) {
     const swiperWrapper = document.getElementById('swiper-wrapper');
     if (!swiperWrapper) {
@@ -16,22 +17,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get current page URL path, normalized
     const currentUrl = (window.location.href || '')
       .toLowerCase()
-      .replace(/\/$/, ''); // Remove trailing slash
+      .replace(/\/$/, '');
 
     console.log('Current URL:', currentUrl);
 
     // Filter out the current post if on a blog post page
-    const filteredPosts = (Array.isArray(posts) ? posts : []).filter(post => {
-      // Normalize post URL, handling cases where post.url might be undefined or relative
+    const filteredPosts = posts.filter(post => {
       const postUrl = (post.url || '')
         .toLowerCase()
-        .replace(/\/$/, ''); // Remove trailing slash
+        .replace(/\/$/, '');
 
-      // Normalize comparison by extracting pathname for both URLs
-      const currentPath = currentUrl.replace(/^https?:\/\/[^\/]+/, ''); // Remove protocol and domain
+      const currentPath = currentUrl.replace(/^https?:\/\/[^\/]+/, '');
       const normalizedPostUrl = postUrl.startsWith('http')
-        ? postUrl.replace(/^https?:\/\/[^\/]+/, '') // Absolute URL: remove protocol and domain
-        : postUrl; // Relative URL: use as is
+        ? postUrl.replace(/^https?:\/\/[^\/]+/, '')
+        : postUrl;
 
       const isCurrentPost = normalizedPostUrl && currentPath === normalizedPostUrl;
 
@@ -45,14 +44,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sort posts by datePublished (newest first)
     filteredPosts.sort((a, b) => new Date(b.datePublished) - new Date(a.datePublished));
 
-    // Log filtered posts for debugging
-    console.log('Filtered posts:', filteredPosts);
+    console.log('Filtered posts:', filteredPosts.length, filteredPosts);
 
     if (filteredPosts.length === 0) {
       swiperWrapper.innerHTML = '<div class="error-message">No other recent posts available.</div>';
       return;
     }
 
+    // Create slides for each post
     filteredPosts.forEach((post, index) => {
       const slide = document.createElement('div');
       slide.className = 'swiper-slide post-card animate-slide-up';
@@ -74,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Fetch posts from JSON file
   async function fetchPosts() {
     try {
-      // Add cache-busting query parameter to avoid stale JSON
       const response = await fetch(`https://sangrow.in/blog/blog-posts.json?_t=${Date.now()}`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -84,14 +82,13 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error('Invalid JSON format: Expected an array.');
       }
 
-      // Log all fetched posts for debugging
-      console.log('Fetched posts:', posts);
+      console.log('Fetched posts:', posts.length, posts);
 
-      // Display filtered and sorted posts (excluding current post on blog page)
-      populateSlides(posts.slice(0, 5)); // Limit to 5 posts for performance
+      // Display filtered and sorted posts (up to 10)
+      populateSlides(posts.slice(0, 10)); // Increased from 5 to 10
       setTimeout(() => initSwiper(), 100);
     } catch (error) {
-      console.error('Failed to fetch posts:', error);
+      console.error('Failed to fetch posts:', error.message);
       const swiperWrapper = document.getElementById('swiper-wrapper');
       if (swiperWrapper) {
         swiperWrapper.innerHTML = '<div class="error-message">Failed to load posts. Please try again later.</div>';
@@ -100,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Debounce utility function
+  // Debounce utility
   function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -113,8 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Swiper initialization
-  const initSwiper = () => {
+  // Initialize Swiper slider
+  function initSwiper() {
     const sliderContainer = document.querySelector('.recent-posts-slider');
     if (!sliderContainer) {
       console.warn('Swiper: Recent posts slider container not found.');
@@ -142,15 +139,14 @@ document.addEventListener('DOMContentLoaded', () => {
           return false;
         }
 
-        // Log slide count for debugging
         console.log(`Swiper: Initializing with ${slides.length} slides`);
 
-        // Determine if loop mode should be enabled
-        const maxSlidesPerView = 4; // Maximum slidesPerView at 1280px breakpoint
-        const minSlidesForLoop = maxSlidesPerView * 2; // Require at least twice maxSlidesPerView for loop
+        // Loop mode logic
+        const maxSlidesPerView = 4; // Max slides at 1280px
+        const minSlidesForLoop = maxSlidesPerView * 2; // Require 8 slides
         const enableLoop = slides.length >= minSlidesForLoop;
 
-        if (!enableLoop && slides.length < minSlidesForLoop) {
+        if (!enableLoop) {
           console.log(`Swiper: Loop mode disabled due to insufficient slides (${slides.length} < ${minSlidesForLoop}).`);
         }
 
@@ -159,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
           spaceBetween: 8,
           centeredSlides: slides.length === 1,
           loop: enableLoop,
-          loopAdditionalSlides: enableLoop ? Math.max(0, minSlidesForLoop - slides.length) : 0, // Add extra slides if needed
+          loopAdditionalSlides: enableLoop ? Math.max(0, minSlidesForLoop - slides.length) : 0,
           pagination: pagination ? { el: '.swiper-pagination', clickable: true } : false,
           navigation: nextBtn && prevBtn ? { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } : false,
           breakpoints: {
@@ -192,6 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
           touchRatio: 1.5
         });
 
+        // Enhance navigation button accessibility
         [nextBtn, prevBtn].forEach(btn => {
           if (btn) {
             btn.setAttribute('tabindex', '0');
@@ -206,6 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
 
+        // Track slider initialization
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
           event: 'slider_initialized',
@@ -229,6 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Observe DOM changes for late-loaded slides
     const observer = new MutationObserver((mutations, obs) => {
       if (tryInitSwiper()) {
         obs.disconnect();
@@ -247,8 +246,9 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.disconnect();
       }
     }, 5000);
-  };
+  }
 
+  // Apply fallback layout if Swiper fails
   function applyFallback(container) {
     console.log('Swiper: Applying fallback layout.');
     if (container) {

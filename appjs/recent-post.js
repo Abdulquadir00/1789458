@@ -88,7 +88,7 @@
         console.log('Fetched posts:', posts);
 
         // Display filtered and sorted posts (excluding current post on blog page)
-        populateSlides(posts.slice(0, 8)); // Limit to 8 posts for performance
+        populateSlides(posts.slice(0, 5)); // Limit to 5 posts for performance
         setTimeout(() => initSwiper(), 100);
       } catch (error) {
         console.error('Failed to fetch posts:', error);

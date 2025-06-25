@@ -142,8 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Swiper: Initializing with ${slides.length} slides`);
 
         // Loop mode logic
-        const maxSlidesPerView = 4; // Max slides at 1280px
-        const minSlidesForLoop = maxSlidesPerView * 2; // Require 8 slides
+        const maxSlidesPerView = 6; // Max slides at 1280px
+        const minSlidesForLoop = maxSlidesPerView * 2; // Require 12 slides
         const enableLoop = slides.length >= minSlidesForLoop;
 
         if (!enableLoop) {
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         swiperInstance = new Swiper(sliderContainer, {
-          slidesPerView: 'auto',
+          slidesPerView: '6',
           spaceBetween: 8,
           centeredSlides: slides.length === 1,
           loop: enableLoop,
@@ -163,10 +163,10 @@ document.addEventListener('DOMContentLoaded', () => {
             480: { slidesPerView: 'auto', spaceBetween: 12 },
             640: { slidesPerView: 2, spaceBetween: 16 },
             768: { slidesPerView: 2, spaceBetween: 16 },
-            1024: { slidesPerView: 3, spaceBetween: 16 },
-            1280: { slidesPerView: 4, spaceBetween: 16 }
+            1024: { slidesPerView: 4, spaceBetween: 16 },
+            1280: { slidesPerView: 6, spaceBetween: 16 }
           },
-          autoplay: slides.length > 1 ? { delay: 6000, disableOnInteraction: true } : false,
+          autoplay: slides.length > 1 ? { delay: 5000, disableOnInteraction: true } : false,
           speed: 500,
           a11y: {
             enabled: true,

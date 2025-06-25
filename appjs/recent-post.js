@@ -145,13 +145,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // Log slide count for debugging
         console.log(`Swiper: Initializing with ${slides.length} slides`);
 
+        // Determine if loop mode should be enabled
+        const maxSlidesPerView = 4; // Maximum slidesPerView at 1280px breakpoint
+        const minSlidesForLoop = maxSlidesPerView * 2; // Require at least twice maxSlidesPerView for loop
+        const enableLoop = slides.length >= minSlidesForLoop;
+
+        if (!enableLoop && slides.length < minSlidesForLoop) {
+          console.log(`Swiper: Loop mode disabled due to insufficient slides (${slides.length} < ${minSlidesForLoop}).`);
+        }
+
         swiperInstance = new Swiper(sliderContainer, {
           slidesPerView: 'auto',
           spaceBetween: 8,
           centeredSlides: slides.length === 1,
-          loop: slides.length > Math.max(3, 4), // Ensure enough slides for loop (4 is max slidesPerView at 1280px)
+          loop: enableLoop,
+          loopAdditionalSlides: enableLoop ? Math.max(0, minSlidesForLoop - slides.length) : 0, // Add extra slides if needed
           pagination: pagination ? { el: '.swiper-pagination', clickable: true } : false,
-          navigation: nextBtn && prevBtn ? { nextEl: '.swiper-button-prev', prevEl: '.swiper-button-next' } : false,
+          navigation: nextBtn && prevBtn ? { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } : false,
           breakpoints: {
             360: { slidesPerView: 'auto', spaceBetween: 8 },
             480: { slidesPerView: 'auto', spaceBetween: 12 },

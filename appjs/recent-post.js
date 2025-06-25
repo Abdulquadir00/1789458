@@ -1,4 +1,4 @@
- // Function to dynamically generate slides
+    // Function to dynamically generate slides
     function populateSlides(posts) {
       const swiperWrapper = document.getElementById('swiper-wrapper');
       if (!swiperWrapper) {
@@ -14,33 +14,33 @@
       }
 
       // Get current page URL path, normalized
-const currentUrl = (window.location.href || '')
-  .toLowerCase()
-  .replace(/\/$/, ''); // Remove trailing slash
+      const currentUrl = (window.location.href || '')
+        .toLowerCase()
+        .replace(/\/$/, ''); // Remove trailing slash
 
-console.log('Current URL:', currentUrl);
+      console.log('Current URL:', currentUrl);
 
-// Filter out the current post if on a blog post page
-const filteredPosts = (Array.isArray(posts) ? posts : []).filter(post => {
-  // Normalize post URL, handling cases where post.url might be undefined or relative
-  const postUrl = (post.url || '')
-    .toLowerCase()
-    .replace(/\/$/, ''); // Remove trailing slash
+      // Filter out the current post if on a blog post page
+      const filteredPosts = (Array.isArray(posts) ? posts : []).filter(post => {
+        // Normalize post URL, handling cases where post.url might be undefined or relative
+        const postUrl = (post.url || '')
+          .toLowerCase()
+          .replace(/\/$/, ''); // Remove trailing slash
 
-  // Normalize comparison by extracting pathname for both URLs
-  const currentPath = currentUrl.replace(/^https?:\/\/[^\/]+/, ''); // Remove protocol and domain
-  const normalizedPostUrl = postUrl.startsWith('http')
-    ? postUrl.replace(/^https?:\/\/[^\/]+/, '') // Absolute URL: remove protocol and domain
-    : postUrl; // Relative URL: use as is
+        // Normalize comparison by extracting pathname for both URLs
+        const currentPath = currentUrl.replace(/^https?:\/\/[^\/]+/, ''); // Remove protocol and domain
+        const normalizedPostUrl = postUrl.startsWith('http')
+          ? postUrl.replace(/^https?:\/\/[^\/]+/, '') // Absolute URL: remove protocol and domain
+          : postUrl; // Relative URL: use as is
 
-  const isCurrentPost = normalizedPostUrl && currentPath === normalizedPostUrl;
+        const isCurrentPost = normalizedPostUrl && currentPath === normalizedPostUrl;
 
-  if (isCurrentPost) {
-    console.log(`Excluding current post: ${post.title || 'Untitled'}, URL: ${postUrl}`);
-  }
+        if (isCurrentPost) {
+          console.log(`Excluding current post: ${post.title || 'Untitled'}, URL: ${postUrl}`);
+        }
 
-  return !isCurrentPost;
-});
+        return !isCurrentPost;
+      });
 
       // Sort posts by datePublished (newest first)
       filteredPosts.sort((a, b) => new Date(b.datePublished) - new Date(a.datePublished));
@@ -60,12 +60,12 @@ const filteredPosts = (Array.isArray(posts) ? posts : []).filter(post => {
         slide.innerHTML = `
           <picture>
             <source srcset="${post.imageWebp || ''}" type="image/webp">
-            <img src="${post.imageJpg || 'https://via.placeholder.com/468x200?text=No+Image'}" alt="${post.imageAlt || 'Post image'}" width="468" height="200" sizes="(max-width: 468px) 100vw, 468px" class="w-full h-[200px] object-cover rounded-lg mb-3" loading="lazy">
+            <img src="${post.imageJpg || 'https://via.placeholder.com/360x140?text=No+Image'}" alt="${post.imageAlt || 'Post image'}" width="360" height="140" sizes="(max-width: 360px) 100vw, 360px" class="w-full h-auto object-cover rounded-md mb-2" loading="lazy">
           </picture>
-          <h3 class="font-semibold text-sm lg:text-base">${post.title || 'Untitled'}</h3>
-          <p class="date">${new Date(post.datePublished).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
-          <p class="excerpt text-sm mt-2">${post.excerpt || 'No excerpt available.'}</p>
-          <a href="${post.url || '#'}" class="text-primary hover:underline mt-2 inline-block text-sm" aria-label="Read more about ${post.title || 'this post'}" role="link">Read More</a>
+          <h3 class="font-semibold text-sm sm:text-base">${post.title || 'Untitled'}</h3>
+          <p class="date text-xs sm:text-sm">${new Date(post.datePublished).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+          <p class="excerpt text-xs sm:text-sm mt-1">${post.excerpt || 'No excerpt available.'}</p>
+          <a href="${post.url || '#'}" class="text-primary hover:underline mt-2 inline-block text-xs sm:text-sm" aria-label="Read more about ${post.title || 'this post'}" role="link">Read More</a>
         `;
         swiperWrapper.appendChild(slide);
       });
@@ -88,7 +88,7 @@ const filteredPosts = (Array.isArray(posts) ? posts : []).filter(post => {
         console.log('Fetched posts:', posts);
 
         // Display filtered and sorted posts (excluding current post on blog page)
-        populateSlides(posts.slice(0, 6)); // Limit to 6 posts for performance
+        populateSlides(posts.slice(0, 8)); // Limit to 8 posts for performance
         setTimeout(() => initSwiper(), 100);
       } catch (error) {
         console.error('Failed to fetch posts:', error);
@@ -143,19 +143,22 @@ const filteredPosts = (Array.isArray(posts) ? posts : []).filter(post => {
           }
 
           swiperInstance = new Swiper(sliderContainer, {
-            slidesPerView: 1,
-            spaceBetween: 16,
+            slidesPerView: 'auto',
+            spaceBetween: 8,
             centeredSlides: slides.length === 1,
             loop: slides.length > 2,
             pagination: pagination ? { el: '.swiper-pagination', clickable: true } : false,
             navigation: nextBtn && prevBtn ? { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } : false,
             breakpoints: {
+              360: { slidesPerView: 'auto', spaceBetween: 8 },
+              480: { slidesPerView: 'auto', spaceBetween: 12 },
               640: { slidesPerView: 2, spaceBetween: 16 },
+              768: { slidesPerView: 2, spaceBetween: 16 },
               1024: { slidesPerView: 3, spaceBetween: 16 },
-              1280: { slidesPerView: 3, spaceBetween: 16 }
+              1280: { slidesPerView: 4, spaceBetween: 16 }
             },
-            autoplay: slides.length > 1 ? { delay: 5000, disableOnInteraction: true } : false,
-            speed: 600,
+            autoplay: slides.length > 1 ? { delay: 6000, disableOnInteraction: true } : false,
+            speed: 500,
             a11y: {
               enabled: true,
               prevSlideMessage: 'Previous post',
@@ -165,7 +168,15 @@ const filteredPosts = (Array.isArray(posts) ? posts : []).filter(post => {
             grabCursor: true,
             observer: true,
             observeParents: true,
-            observeSlideChildren: true
+            observeSlideChildren: true,
+            freeMode: {
+              enabled: true,
+              sticky: true
+            },
+            mousewheel: {
+              forceToAxis: true
+            },
+            touchRatio: 1.5
           });
 
           [nextBtn, prevBtn].forEach(btn => {
@@ -191,7 +202,7 @@ const filteredPosts = (Array.isArray(posts) ? posts : []).filter(post => {
 
           window.addEventListener('resize', debounce(() => {
             swiperInstance.update();
-          }, 100));
+          }, 50));
 
           return true;
         } catch (error) {

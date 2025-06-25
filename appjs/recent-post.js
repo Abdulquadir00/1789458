@@ -129,7 +129,7 @@ const filteredPosts = (Array.isArray(posts) ? posts : []).filter(post => {
 
       let swiperInstance = null;
 
-      const tryInitSwiper = () => {
+     const tryInitSwiper = () => {
         try {
           const swiperWrapper = sliderContainer.querySelector('.swiper-wrapper');
           const slides = swiperWrapper?.querySelectorAll('.swiper-slide.post-card') || [];
@@ -143,19 +143,22 @@ const filteredPosts = (Array.isArray(posts) ? posts : []).filter(post => {
           }
 
           swiperInstance = new Swiper(sliderContainer, {
-            slidesPerView: 1,
-            spaceBetween: 16,
+            slidesPerView: 'auto',
+            spaceBetween: 8,
             centeredSlides: slides.length === 1,
             loop: slides.length > 2,
             pagination: pagination ? { el: '.swiper-pagination', clickable: true } : false,
             navigation: nextBtn && prevBtn ? { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } : false,
             breakpoints: {
+              360: { slidesPerView: 'auto', spaceBetween: 8 },
+              480: { slidesPerView: 'auto', spaceBetween: 12 },
               640: { slidesPerView: 2, spaceBetween: 16 },
+              768: { slidesPerView: 2, spaceBetween: 16 },
               1024: { slidesPerView: 3, spaceBetween: 16 },
-              1280: { slidesPerView: 3, spaceBetween: 16 }
+              1280: { slidesPerView: 4, spaceBetween: 16 }
             },
-            autoplay: slides.length > 1 ? { delay: 5000, disableOnInteraction: true } : false,
-            speed: 600,
+            autoplay: slides.length > 1 ? { delay: 6000, disableOnInteraction: true } : false,
+            speed: 500,
             a11y: {
               enabled: true,
               prevSlideMessage: 'Previous post',
@@ -165,7 +168,15 @@ const filteredPosts = (Array.isArray(posts) ? posts : []).filter(post => {
             grabCursor: true,
             observer: true,
             observeParents: true,
-            observeSlideChildren: true
+            observeSlideChildren: true,
+            freeMode: {
+              enabled: true,
+              sticky: true
+            },
+            mousewheel: {
+              forceToAxis: true
+            },
+            touchRatio: 1.5
           });
 
           [nextBtn, prevBtn].forEach(btn => {
@@ -181,7 +192,6 @@ const filteredPosts = (Array.isArray(posts) ? posts : []).filter(post => {
               });
             }
           });
-
           window.dataLayer = window.dataLayer || [];
           window.dataLayer.push({
             event: 'slider_initialized',

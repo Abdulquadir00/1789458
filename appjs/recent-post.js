@@ -1,199 +1,138 @@
-document.addEventListener('DOMContentLoaded', () => {
-  // Populate Swiper slides with posts
-  function populateSlides(posts) {
-    const swiperWrapper = document.getElementById('swiper-wrapper');
-    if (!swiperWrapper) {
-      console.warn('Swiper: Wrapper not found.');
-      return;
-    }
+ document.addEventListener('DOMContentLoaded', () => {
+      // Function to dynamically generate slides
+      function populateSlides(posts) {
+        const swiperWrapper = document.getElementById('swiper-wrapper');
+        if (!swiperWrapper) {
+          console.warn('Swiper: Wrapper not found.');
+          return;
+        }
 
-    swiperWrapper.innerHTML = ''; // Clear existing slides
-    if (!Array.isArray(posts) || posts.length === 0) {
-      console.warn('No posts available in JSON data.');
-      swiperWrapper.innerHTML = '<div class="error-message">No posts available.</div>';
-      return;
-    }
+        swiperWrapper.innerHTML = ''; // Clear existing content
+        if (!Array.isArray(posts) || posts.length === 0) {
+          console.warn('No posts available.');
+          swiperWrapper.innerHTML = '<div class="error-message">No posts available.</div>';
+          return;
+        }
 
-    // Get current page URL path, normalized
-    const currentUrl = (window.location.href || '')
-      .toLowerCase()
-      .replace(/\/$/, '');
+        // Get current page URL path, normalized
+        const currentUrl = window.location.pathname.toLowerCase().replace(/\/$/, '');
 
-    console.log('Current URL:', currentUrl);
+        // Filter out the current post if on a blog post page
+        const filteredPosts = posts.filter(post => {
+          const postUrl = post.url ? post.url.toLowerCase().replace(/^https?:\/\/[^\/]+/, '').replace(/\/$/, '') : '';
+          return postUrl && currentUrl !== postUrl;
+        });
 
-    // Filter out the current post if on a blog post page
-    const filteredPosts = posts.filter(post => {
-      const postUrl = (post.url || '')
-        .toLowerCase()
-        .replace(/\/$/, '');
+        if (filteredPosts.length === 0) {
+          swiperWrapper.innerHTML = '<div class="error-message">No other recent posts available.</div>';
+          return;
+        }
 
-      const currentPath = currentUrl.replace(/^https?:\/\/[^\/]+/, '');
-      const normalizedPostUrl = postUrl.startsWith('http')
-        ? postUrl.replace(/^https?:\/\/[^\/]+/, '')
-        : postUrl;
-
-      const isCurrentPost = normalizedPostUrl && currentPath === normalizedPostUrl;
-
-      if (isCurrentPost) {
-        console.log(`Excluding current post: ${post.title || 'Untitled'}, URL: ${postUrl}`);
+        filteredPosts.forEach((post, index) => {
+          const slide = document.createElement('div');
+          slide.className = 'swiper-slide post-card animate-slide-up';
+          slide.style.animationDelay = `${index * 0.1}s`;
+          slide.innerHTML = `
+            <picture>
+              <source srcset="${post.imageWebp || ''}" type="image/webp">
+              <img src="${post.imageJpg || 'https://via.placeholder.com/360x160?text=No+Image'}" alt="${post.imageAlt || 'Post image'}" width="360" height="160" sizes="(max-width: 360px) 100vw, 360px" class="w-full h-[160px] object-cover rounded-lg mb-3" loading="lazy" fetchpriority="low">
+            </picture>
+            <h3 class="font-semibold text-sm lg:text-base">${post.title || 'Untitled'}</h3>
+            <p class="text-sm mt-2">${post.excerpt || 'No excerpt available.'}</p>
+            <a href="${post.url || '#'}" class="text-primary hover:underline mt-2 inline-block text-sm" aria-label="Read more about ${post.title || 'this post'}" role="link">Read More</a>
+          `;
+          swiperWrapper.appendChild(slide);
+        });
       }
 
-      return !isCurrentPost;
-    });
+      // Fetch posts from JSON file
+      async function fetchPosts(attempt = 1, maxAttempts = 3) {
+        const swiperWrapper = document.getElementById('swiper-wrapper');
+        try {
+          const response = await fetch(`https://sangrow.in/blog/blog-posts.json?_t=${Date.now()}`);
+          if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+          const posts = await response.json();
+          if (!Array.isArray(posts)) throw new Error('Invalid JSON format: Expected an array.');
 
-    // Sort posts by datePublished (newest first)
-    filteredPosts.sort((a, b) => new Date(b.datePublished) - new Date(a.datePublished));
-
-    console.log('Filtered posts:', filteredPosts.length, filteredPosts);
-
-    if (filteredPosts.length === 0) {
-      swiperWrapper.innerHTML = '<div class="error-message">No other recent posts available.</div>';
-      return;
-    }
-
-    // Create slides for each post
-    filteredPosts.forEach((post, index) => {
-      const slide = document.createElement('div');
-      slide.className = 'swiper-slide post-card animate-slide-up';
-      slide.style.animationDelay = `${index * 0.1}s`;
-      slide.innerHTML = `
-        <picture>
-          <source srcset="${post.imageWebp || ''}" type="image/webp">
-          <img src="${post.imageJpg || 'https://via.placeholder.com/360x140?text=No+Image'}" alt="${post.imageAlt || 'Post image'}" width="360" height="140" sizes="(max-width: 360px) 100vw, 360px" class="w-full h-auto object-cover rounded-md mb-2" loading="lazy">
-        </picture>
-        <h3 class="font-semibold text-sm sm:text-base">${post.title || 'Untitled'}</h3>
-        <p class="date text-xs sm:text-sm">${new Date(post.datePublished).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
-        <p class="excerpt text-xs sm:text-sm mt-1">${post.excerpt || 'No excerpt available.'}</p>
-        <a href="${post.url || '#'}" class="text-primary hover:underline mt-2 inline-block text-xs sm:text-sm" aria-label="Read more about ${post.title || 'this post'}" role="link">Read More</a>
-      `;
-      swiperWrapper.appendChild(slide);
-    });
-  }
-
-  // Fetch posts from JSON file
-  async function fetchPosts() {
-    try {
-      const response = await fetch(`https://sangrow.in/blog/blog-posts.json?_t=${Date.now()}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const posts = await response.json();
-      if (!Array.isArray(posts)) {
-        throw new Error('Invalid JSON format: Expected an array.');
+          console.log('Raw JSON response:', posts); // Debug JSON
+          populateSlides(posts.slice(0, 6)); // Limit to 6 posts
+          initSwiper();
+        } catch (error) {
+          console.error(`Fetch attempt ${attempt} failed:`, error);
+          if (attempt < maxAttempts) {
+            setTimeout(() => fetchPosts(attempt + 1, maxAttempts), 2000);
+          } else {
+            if (swiperWrapper) {
+              swiperWrapper.innerHTML = '<div class="error-message">Failed to load posts after multiple attempts.</div>';
+              applyFallback(document.querySelector('.recent-posts-slider'));
+            }
+          }
+        }
       }
 
-      console.log('Fetched posts:', posts.length, posts);
-
-      // Display filtered and sorted posts (up to 10)
-      populateSlides(posts.slice(0, 10)); // Increased from 5 to 10
-      setTimeout(() => initSwiper(), 100);
-    } catch (error) {
-      console.error('Failed to fetch posts:', error.message);
-      const swiperWrapper = document.getElementById('swiper-wrapper');
-      if (swiperWrapper) {
-        swiperWrapper.innerHTML = '<div class="error-message">Failed to load posts. Please try again later.</div>';
+      // Debounce utility function
+      function debounce(func, wait) {
+        let timeout;
+        return function (...args) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func(...args), wait);
+        };
       }
-      applyFallback(document.querySelector('.recent-posts-slider'));
-    }
-  }
 
-  // Debounce utility
-  function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  }
+      // Swiper initialization
+      function initSwiper() {
+        const sliderContainer = document.querySelector('.recent-posts-slider');
+        if (!sliderContainer) {
+          console.warn('Swiper: Container not found.');
+          return;
+        }
 
-  // Initialize Swiper slider
-  function initSwiper() {
-    const sliderContainer = document.querySelector('.recent-posts-slider');
-    if (!sliderContainer) {
-      console.warn('Swiper: Recent posts slider container not found.');
-      return;
-    }
+        if (typeof Swiper === 'undefined') {
+          console.warn('Swiper: Library not loaded.');
+          applyFallback(sliderContainer);
+          return;
+        }
 
-    if (typeof Swiper === 'undefined') {
-      console.warn('Swiper: Library not loaded.');
-      applyFallback(sliderContainer);
-      return;
-    }
-
-    let swiperInstance = null;
-
-    const tryInitSwiper = () => {
-      try {
         const swiperWrapper = sliderContainer.querySelector('.swiper-wrapper');
         const slides = swiperWrapper?.querySelectorAll('.swiper-slide.post-card') || [];
-        const pagination = sliderContainer.querySelector('.swiper-pagination');
-        const nextBtn = sliderContainer.querySelector('.swiper-button-next');
-        const prevBtn = sliderContainer.querySelector('.swiper-button-prev');
 
         if (!swiperWrapper || slides.length === 0) {
-          console.warn('Swiper: Wrapper or slides missing.');
-          return false;
+          console.warn('Swiper: No slides found.');
+          applyFallback(sliderContainer);
+          return;
         }
 
-        console.log(`Swiper: Initializing with ${slides.length} slides`);
-
-        // Loop mode logic
-        const maxSlidesPerView = 6; // Max slides at 1280px
-        const minSlidesForLoop = maxSlidesPerView * 2; // Require 12 slides
-        const enableLoop = slides.length >= minSlidesForLoop;
-
-        if (!enableLoop) {
-          console.log(`Swiper: Loop mode disabled due to insufficient slides (${slides.length} < ${minSlidesForLoop}).`);
-        }
-
-        swiperInstance = new Swiper(sliderContainer, {
-          slidesPerView: '6',
-          spaceBetween: 8,
+        const swiper = new Swiper(sliderContainer, {
+          slidesPerView: 1,
+          spaceBetween: 12,
           centeredSlides: slides.length === 1,
-          loop: enableLoop,
-          loopAdditionalSlides: enableLoop ? Math.max(0, minSlidesForLoop - slides.length) : 0,
-          pagination: pagination ? { el: '.swiper-pagination', clickable: true } : false,
-          navigation: nextBtn && prevBtn ? { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } : false,
+          loop: slides.length > 2,
+          pagination: { el: '.swiper-pagination', clickable: true },
+          navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
           breakpoints: {
-            360: { slidesPerView: 'auto', spaceBetween: 8 },
-            480: { slidesPerView: 'auto', spaceBetween: 12 },
-            640: { slidesPerView: 2, spaceBetween: 16 },
-            768: { slidesPerView: 2, spaceBetween: 16 },
-            1024: { slidesPerView: 4, spaceBetween: 16 },
-            1280: { slidesPerView: 6, spaceBetween: 16 }
+            640: { slidesPerView: 2, spaceBetween: 12 },
+            768: { slidesPerView: 2, spaceBetween: 12 },
+            1024: { slidesPerView: 3, spaceBetween: 12 },
+            1280: { slidesPerView: 3, spaceBetween: 12 }
           },
           autoplay: slides.length > 1 ? { delay: 5000, disableOnInteraction: true } : false,
-          speed: 500,
+          speed: 600,
           a11y: {
             enabled: true,
             prevSlideMessage: 'Previous post',
             nextSlideMessage: 'Next post',
             paginationBulletMessage: 'Go to post {{index}}'
           },
-          grabCursor: true,
-          observer: true,
-          observeParents: true,
-          observeSlideChildren: true,
-          freeMode: {
-            enabled: true,
-            sticky: true
-          },
-          mousewheel: {
-            forceToAxis: true
-          },
-          touchRatio: 1.5
+          grabCursor: true
         });
 
-        // Enhance navigation button accessibility
-        [nextBtn, prevBtn].forEach(btn => {
+        // Enhance accessibility for navigation buttons
+        ['.swiper-button-prev', '.swiper-button-next'].forEach(selector => {
+          const btn = sliderContainer.querySelector(selector);
           if (btn) {
             btn.setAttribute('tabindex', '0');
             btn.setAttribute('role', 'button');
-            btn.setAttribute('aria-label', btn.classList.contains('swiper-button-next') ? 'Next post' : 'Previous post');
+            btn.setAttribute('aria-label', selector.includes('next') ? 'Next post' : 'Previous post');
             btn.addEventListener('keydown', e => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -203,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
 
-        // Track slider initialization
+        // Track slider initialization and slide changes
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
           event: 'slider_initialized',
@@ -211,51 +150,24 @@ document.addEventListener('DOMContentLoaded', () => {
           slide_count: slides.length
         });
 
-        window.addEventListener('resize', debounce(() => {
-          swiperInstance.update();
-        }, 50));
+        swiper.on('slideChange', () => {
+          window.dataLayer.push({
+            event: 'slider_slide_change',
+            slider_name: 'Recent Posts',
+            slide_index: swiper.activeIndex
+          });
+        });
 
-        return true;
-      } catch (error) {
-        console.error('Swiper: Initialization failed:', error.message);
-        applyFallback(sliderContainer);
-        return false;
+        // Update Swiper on resize
+        window.addEventListener('resize', debounce(() => swiper.update(), 100));
       }
-    };
 
-    if (tryInitSwiper()) {
-      return;
-    }
-
-    // Observe DOM changes for late-loaded slides
-    const observer = new MutationObserver((mutations, obs) => {
-      if (tryInitSwiper()) {
-        obs.disconnect();
+      // Apply fallback layout if Swiper fails
+      function applyFallback(container) {
+        console.log('Applying fallback layout.');
+        if (container) container.classList.add('fallback');
       }
+
+      // Start fetching posts
+      fetchPosts();
     });
-
-    observer.observe(sliderContainer, {
-      childList: true,
-      subtree: true
-    });
-
-    setTimeout(() => {
-      if (!swiperInstance) {
-        console.warn('Swiper: No slides detected after timeout, applying fallback.');
-        applyFallback(sliderContainer);
-        observer.disconnect();
-      }
-    }, 5000);
-  }
-
-  // Apply fallback layout if Swiper fails
-  function applyFallback(container) {
-    console.log('Swiper: Applying fallback layout.');
-    if (container) {
-      container.classList.add('fallback');
-    }
-  }
-
-  // Start fetching posts
-  fetchPosts();
-});

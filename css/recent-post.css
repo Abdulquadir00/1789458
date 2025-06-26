@@ -50,7 +50,7 @@
 
     .swiper-wrapper {
       display: flex;
-      align-items: stretch;
+      align-items: center;
     }
 
     .swiper-slide.post-card {
@@ -276,7 +276,7 @@
     /* Tiny Mobile Devices (below 360px) */
     @media (max-width: 359px) {
       .recent-posts-slider {
-        padding-left: 0.25rem;
+        padding-left: 2rem;
         padding-right: 0.25rem;
         padding-bottom: 2.5rem;
       }
@@ -324,7 +324,7 @@
     /* Small Mobile Devices (360px and up) */
     @media (min-width: 360px) {
       .recent-posts-slider {
-        padding-left: 0.5rem;
+        padding-left: 2rem;
         padding-right: 0.5rem;
         padding-bottom: 2.5rem;
       }

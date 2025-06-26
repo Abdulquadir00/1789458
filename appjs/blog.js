@@ -349,7 +349,7 @@ const chartConfigs = [
     errorId: 'chart-error',
     title: 'Conversion Rate Improvements by AR Marketing Strategy (2025)',
     labels: ['Virtual Try-Ons', 'Interactive Ads', 'In-Store Navigation', 'Product Visualization', 'Gamified AR','AR Loyalty Programs'],
-    data: [25, 28, 15, 20, 18,22],
+    data: [25, 28, 15, 20, 18, 22],
     backgroundColors: [
       'rgba(16, 185, 129, 0.8)',
       'rgba(249, 115, 22, 0.8)',
@@ -366,7 +366,7 @@ const chartConfigs = [
       'rgba(220, 38, 38, 1)',
       'rgba(21, 128, 61, 1)'
     ],
-    yAxisMax: 30,
+    yAxisMax: 100,
     gtmEvent: 'ar-conversion'
   },
   {

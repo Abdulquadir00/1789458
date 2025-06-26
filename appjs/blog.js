@@ -356,7 +356,7 @@ const chartConfigs = [
       'rgba(59, 130, 246, 0.8)',
       'rgba(139, 92, 246, 0.8)',
       'rgba(239, 68, 68, 0.8)',
-      'rgba(39, 18, 78, 0.8)'
+      'rgba(34, 197, 94, 0.8)'
     ],
     borderColors: [
       'rgba(5, 150, 105, 1)',
@@ -364,7 +364,7 @@ const chartConfigs = [
       'rgba(37, 99, 235, 1)',
       'rgba(109, 40, 217, 1)',
       'rgba(220, 38, 38, 1)',
-      'rgba(20, 58, 98, 1)'
+      'rgba(21, 128, 61, 1)'
     ],
     yAxisMax: 30,
     gtmEvent: 'ar-conversion'

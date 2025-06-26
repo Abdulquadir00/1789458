@@ -321,7 +321,7 @@ const chartConfigs = [
     canvasId: 'aiToolCostBenefitChart',
     errorId: 'chart-error',
     title: 'Cost-Benefit Analysis of AI Tools for Small Businesses (2025)',
-    labels: ['Jasper AI', 'Grammarly', 'ChatGPT', 'HubSpot AI', 'Pictory', 'Zapier', 'Semrush'],
+    labels: ['Jasper AI', 'Grammarly', 'Grok', 'HubSpot AI', 'Pictory', 'Zapier', 'Semrush'],
     data: [80, 20, 30, 15, 25, 40, 35],
     backgroundColors: [
       'rgba(249, 115, 22, 0.8)',

@@ -341,7 +341,7 @@ const chartConfigs = [
       'rgba(217, 119, 6, 1)',
       'rgba(21, 128, 61, 1)'
     ],
-    yAxisMax: 50,
+    yAxisMax: 100,
     gtmEvent: 'ai-tool-cost-benefit'
   },
   {

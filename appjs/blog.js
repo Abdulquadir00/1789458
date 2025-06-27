@@ -391,6 +391,27 @@ const chartConfigs = [
     ],
     yAxisMax: 30,
     gtmEvent: 'green-engagement'
+  }, 
+  {
+    canvasId: 'aio-aeo-geo-engagementChart',
+    errorId: 'chart-error',
+    title: 'Engagement Rate Improvements by AEO and AIO GEO -Targeting Strategies (2025)',
+    labels: ['AEO', 'AIO', 'GEO', 'Integrated Approach'],
+    data: [25, 20, 22, 28],
+    backgroundColors: [
+      'rgba(9, 114, 79, 0.8)',
+      'rgba(249, 115, 22, 0.8)',
+      'rgba(75, 30, 180, 0.8)',
+      'rgba(105, 74, 74, 0.95)'
+    ],
+    borderColors: [
+      'rgb(30, 177, 131)',
+      'rgb(213, 77, 24)',
+      'rgb(73, 24, 150)',
+      'rgb(131, 39, 39)'
+    ],
+    yAxisMax: 30,
+    gtmEvent: 'aeo-aio-geo--engagement'
   }
 ];
 

@@ -366,7 +366,7 @@ const chartConfigs = [
       'rgba(220, 38, 38, 1)',
       'rgba(21, 128, 61, 1)'
     ],
-    yAxisMax: 100,
+    yAxisMax: 50,
     gtmEvent: 'ar-conversion'
   },
   {

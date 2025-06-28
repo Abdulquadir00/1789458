@@ -112,11 +112,11 @@
           breakpoints: {
             640: { slidesPerView: 2, spaceBetween: 12 },
             768: { slidesPerView: 2, spaceBetween: 12 },
-            1024: { slidesPerView: 3, spaceBetween: 12 },
-            1280: { slidesPerView: 3, spaceBetween: 12 }
+            1024: { slidesPerView: 4, spaceBetween: 12 },
+            1280: { slidesPerView: 5, spaceBetween: 12 }
           },
           autoplay: slides.length > 1 ? { delay: 5000, disableOnInteraction: true } : false,
-          speed: 600,
+          speed: 800,
           a11y: {
             enabled: true,
             prevSlideMessage: 'Previous post',

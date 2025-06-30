@@ -413,6 +413,27 @@ const chartConfigs = [
     yAxisMax: 30,
     gtmEvent: 'aeo-aio-geo--engagement'
   }
+  , {
+    canvasId: 'ai-usage-chart',
+    errorId: 'chart-error',
+    title: 'Engagement Rate Improvements by Ai-Usage-Targeting Strategies (2025)',
+    labels:['Brainstorming', 'Automation', 'Verification'],
+    data: [18,20,15],
+    backgroundColors: [
+      'rgba(9, 114, 79, 0.8)',
+      'rgba(249, 115, 22, 0.8)',
+      'rgba(75, 30, 180, 0.8)',
+     
+    ],
+    borderColors: [
+      'rgb(30, 177, 131)',
+      'rgb(213, 77, 24)',
+      'rgb(73, 24, 150)',
+    
+    ],
+    yAxisMax: 30,
+    gtmEvent: 'ai-usage-engagement'
+  }
 ];
 
 const initChart = (config) => {

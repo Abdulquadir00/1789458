@@ -1,462 +1,331 @@
-/**
- * Main script for website interactivity.
- * Manages mobile menu, navigation scroll, service modal, counter animations, video debugging, Lucide icons, and contact form.
- */
 document.addEventListener('DOMContentLoaded', () => {
-  // Configuration object for selectors, classes, and settings
-  const CONFIG = {
-    selectors: {
-      mobileMenu: '#mobileMenu',
-      mobileMenuBtn: '#mobileMenuBtn',
-      closeMenuBtn: '#closeMenuBtn',
-      nav: 'nav',
-      body: 'body',
-      heroVideo: 'section[aria-labelledby="hero-heading"] video',
-      modal: '#service-modal',
-      modalTitle: '#modal-title',
-      modalDescription: '#modal-description',
-      closeModal: '#close-modal',
-      exploreLinks: '[data-service]',
-      counters: '.counter',
-      aboutSection: '#about',
-      cards: '.card',
-      slideUpElements: '.animate-slide-up',
-      contactForm: '#contact-form',
-      submitBtn: '#submit-btn',
-      btnText: '#btn-text',
-      btnSpinner: '#btn-spinner',
-      formInputs: {
-        name: '#name',
-        email: '#email',
-        phone: '#phone',
-        company: '#company',
-        message: '#message'
-      }
-    },
-    classes: {
-      hidden: 'hidden',
-      noScroll: 'no-scroll'
-    },
-    scroll: {
-      threshold: 100,
-      debounce: 50
-    },
-    form: {
-      rateLimitInterval: 30000, // 30 seconds in milliseconds
-      maxLengths: {
-        name: 100,
-        email: 100,
-        phone: 20,
-        company: 100,
-        message: 1000
-      }
+  // Initialize Lucide Icons
+  if (typeof lucide !== 'undefined') {
+    try {
+      lucide.createIcons();
+      console.log('Lucide icons initialized successfully.');
+    } catch (e) {
+      console.warn('Failed to initialize Lucide icons:', e.message);
     }
+  } else {
+    console.warn('Lucide icons library not loaded. Check CDN inclusion.');
+  }
+
+  // Debounce Utility
+  const debounce = (func, wait) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
   };
 
-  // Cache DOM elements for performance
-  const elements = Object.fromEntries(
-    Object.entries(CONFIG.selectors).map(([key, selector]) => [
-      key,
-      key === 'exploreLinks' || key === 'counters' || key === 'cards' || key === 'slideUpElements'
-        ? document.querySelectorAll(selector)
-        : key === 'formInputs'
-        ? Object.fromEntries(
-            Object.entries(selector).map(([inputKey, inputSelector]) => [
-              inputKey,
-              document.querySelector(inputSelector)
-            ])
-          )
-        : document.querySelector(selector)
-    ])
-  );
+  // Wait for Element Utility
+  const waitForElement = (selector, callback, maxAttempts = 10, interval = 500) => {
+    let attempts = 0;
+    const intervalId = setInterval(() => {
+      if (document.querySelector(selector)) {
+        clearInterval(intervalId);
+        callback();
+      } else if (attempts++ >= maxAttempts) {
+        clearInterval(intervalId);
+        console.warn(`Element ${selector} not found after ${maxAttempts} attempts.`);
+      }
+    }, interval);
+  };
 
-  // Utility: Trap focus within an element for accessibility
-  function trapFocus(element) {
-    if (!element) return () => {};
-    const focusable = element.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    if (!focusable.length) return () => {};
+  // Conditional Logging for Development
+  const isDev = window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1');
+  const logWarn = (message) => {
+    if (isDev) console.warn(message);
+  };
 
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
+  // Mobile Menu
+  const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  const mobileNav = document.querySelector('.mobile-nav');
+  const mobileNavOverlay = document.querySelector('.mobile-nav-overlay');
+  const mobileNavClose = document.querySelector('.mobile-nav-close');
+  const hamburger = document.querySelector('.hamburger');
+  const navLinks = mobileNav?.querySelectorAll('a') || [];
 
-    const handleKeydown = (e) => {
+  const updateFocusableElements = () => {
+    return mobileNav?.querySelectorAll('a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])') || [];
+  };
+
+  const toggleMobileMenu = debounce((open) => {
+    if (!mobileNav || !mobileNavOverlay || !hamburger || !mobileMenuBtn) {
+      logWarn('Mobile menu elements missing (mobile-nav, mobile-nav-overlay, hamburger, or mobile-menu-btn).');
+      return;
+    }
+    mobileNav.classList.toggle('open', open);
+    mobileNavOverlay.classList.toggle('open', open);
+    hamburger.classList.toggle('open', open);
+    mobileMenuBtn.setAttribute('aria-expanded', open);
+    document.body.style.overflow = open ? 'hidden' : 'auto';
+    if (open) {
+      const focusableElements = updateFocusableElements();
+      if (focusableElements.length) focusableElements[0].focus();
+    } else {
+      mobileMenuBtn.focus();
+    }
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'mobile_menu_toggle',
+      state: open ? 'open' : 'closed'
+    });
+  }, 100);
+
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', () => toggleMobileMenu(!mobileNav.classList.contains('open')));
+    mobileMenuBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleMobileMenu(!mobileNav.classList.contains('open'));
+      }
+    });
+  } else {
+    logWarn('Mobile menu button (.mobile-menu-btn) not found.');
+  }
+
+  if (mobileNavOverlay) {
+    mobileNavOverlay.addEventListener('click', () => toggleMobileMenu(false));
+  }
+
+  if (mobileNavClose) {
+    mobileNavClose.addEventListener('click', () => toggleMobileMenu(false));
+    mobileNavClose.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleMobileMenu(false);
+      } else if (e.key === 'Tab' && !e.shiftKey) {
+        e.preventDefault();
+        navLinks[0]?.focus();
+      }
+    });
+  }
+
+  navLinks.forEach((link, index) => {
+    link.addEventListener('click', () => {
+      toggleMobileMenu(false);
+      window.dataLayer.push({
+        event: 'nav_click',
+        link_text: link.textContent.trim(),
+        link_url: link.href
+      });
+    });
+    link.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        window.location.href = link.href;
+        toggleMobileMenu(false);
+      } else if (e.key === 'Tab') {
+        if (index === navLinks.length - 1 && !e.shiftKey) {
+          e.preventDefault();
+          mobileNavClose?.focus();
+        } else if (index === 0 && e.shiftKey) {
+          e.preventDefault();
+          mobileNavClose?.focus();
+        }
+      } else if (e.key === 'Escape') {
+        toggleMobileMenu(false);
+        mobileMenuBtn?.focus();
+      }
+    });
+  });
+
+  // Focus Trapping in Mobile Nav
+  const focusableElements = mobileNav?.querySelectorAll('a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])') || [];
+  if (focusableElements.length) {
+    mobileNav.addEventListener('keydown', (e) => {
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
       if (e.key === 'Tab') {
-        e.preventDefault();
-        (e.shiftKey && document.activeElement === first ? last : first).focus();
+        if (e.shiftKey && document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable.focus();
+        } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable.focus();
+        }
       }
-    };
-
-    element.addEventListener('keydown', handleKeydown);
-    return () => element.removeEventListener('keydown', handleKeydown);
+    });
   }
 
-  // Utility: Sanitize input to prevent XSS
-  function sanitizeInput(input) {
-    const div = document.createElement('div');
-    div.textContent = input;
-    return div.innerHTML.replace(/[<>]/g, '');
-  }
-
-  // Feature: Mobile Menu Toggle
-  function initMobileMenu() {
-    if (!elements.mobileMenu || !elements.mobileMenuBtn || !elements.closeMenuBtn) {
-      console.error('Mobile menu elements missing');
-      return;
+  // Navigation Shadow on Scroll
+  let lastScrollY = window.scrollY;
+  const updateNavShadow = debounce(() => {
+    const scrollY = window.scrollY;
+    const direction = scrollY > lastScrollY ? 'down' : 'up';
+    lastScrollY = scrollY;
+    const nav = document.querySelector('nav');
+    if (nav) {
+      nav.classList.toggle('scrolled', scrollY > 50);
     }
+  }, 10);
 
-    let trapCleanup = null;
+  window.addEventListener('scroll', updateNavShadow);
+  window.addEventListener('resize', updateNavShadow);
+  updateNavShadow();
 
-    const toggleMenu = (open) => {
-      elements.mobileMenu.classList.toggle(CONFIG.classes.hidden, !open);
-      elements.mobileMenu.setAttribute('aria-hidden', !open);
-      elements.mobileMenuBtn.setAttribute('aria-expanded', open);
-      elements.body.classList.toggle(CONFIG.classes.noScroll, open);
-
-      const focusElement = open ? elements.closeMenuBtn : elements.mobileMenuBtn;
-      trapCleanup?.();
-      if (open) trapCleanup = trapFocus(elements.mobileMenu);
-      setTimeout(() => focusElement.focus(), 50);
-    };
-
-    elements.mobileMenuBtn.addEventListener('click', () => toggleMenu(true));
-    elements.closeMenuBtn.addEventListener('click', () => toggleMenu(false));
-    document.querySelectorAll('.mobile-menu .nav-link').forEach(link =>
-      link.addEventListener('click', () => toggleMenu(false))
-    );
-
-    document.addEventListener('click', (e) => {
-      if (
-        !elements.mobileMenu.classList.contains(CONFIG.classes.hidden) &&
-        !e.target.closest('[data-menu-content]') &&
-        !e.target.closest(CONFIG.selectors.mobileMenuBtn)
-      ) {
-        toggleMenu(false);
-      }
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !elements.mobileMenu.classList.contains(CONFIG.classes.hidden)) {
-        toggleMenu(false);
-      }
-    });
-  }
-
-  // Feature: Hide Navigation on Scroll Down
-  function initNavScroll() {
-    if (!elements.nav) return;
-
-    let lastScroll = 0;
-    let debounceTimeout;
-
-    const handleScroll = () => {
-      const currentScroll = window.scrollY;
-      if (currentScroll < CONFIG.scroll.threshold) {
-        elements.nav.classList.remove(CONFIG.classes.hidden);
-        lastScroll = currentScroll;
-        return;
-      }
-
-      if (Math.abs(currentScroll - lastScroll) > CONFIG.scroll.threshold) {
-        elements.nav.classList.toggle(CONFIG.classes.hidden, currentScroll > lastScroll);
-        lastScroll = currentScroll;
-      }
-    };
-
-    window.addEventListener('scroll', () => {
-      clearTimeout(debounceTimeout);
-      debounceTimeout = setTimeout(handleScroll, CONFIG.scroll.debounce);
-    }, { passive: true });
-  }
-
-  // Feature: Service Modal
-  function initServiceModal() {
-    if (
-      !elements.modal ||
-      !elements.modalTitle ||
-      !elements.modalDescription ||
-      !elements.closeModal ||
-      !elements.exploreLinks.length
-    ) return;
-
-    let trapCleanup = null;
-    let lastFocusedElement = null;
-
-    const openModal = (title, description) => {
-      elements.modalTitle.textContent = title || 'Service';
-      elements.modalDescription.textContent = description || 'Contact us to learn more!';
-      elements.modal.classList.remove(CONFIG.classes.hidden);
-      elements.modal.setAttribute('aria-hidden', 'false');
-      elements.body.classList.add(CONFIG.classes.noScroll);
-
-      if (!elements.modal.querySelector('.btn-primary')) {
-        const contactBtn = Object.assign(document.createElement('a'), {
-          href: '#contact',
-          className: 'btn-primary',
-          textContent: 'Contact Us'
-        });
-        elements.modalDescription.insertAdjacentElement('afterend', contactBtn);
-      }
-
-      trapCleanup = trapFocus(elements.modal);
-      setTimeout(() => elements.closeModal.focus(), 50);
-    };
-
-    const closeModal = () => {
-      elements.modal.classList.add(CONFIG.classes.hidden);
-      elements.modal.setAttribute('aria-hidden', 'true');
-      elements.body.classList.remove(CONFIG.classes.noScroll);
-      trapCleanup?.();
-      lastFocusedElement?.focus();
-      trapCleanup = lastFocusedElement = null;
-    };
-
-    elements.exploreLinks.forEach(link =>
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        lastFocusedElement = e.target;
-        openModal(link.dataset.service, link.dataset.description);
-      })
-    );
-
-    elements.closeModal.addEventListener('click', closeModal);
-    elements.modal.addEventListener('click', (e) => {
-      if (e.target === elements.modal) closeModal();
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !elements.modal.classList.contains(CONFIG.classes.hidden)) {
-        closeModal();
-      }
-    });
-  }
-
-  // Feature: Counter Animation
-  function animateCounter(element, target, suffix, duration) {
-    let start = 0;
-    const startTime = performance.now();
-    const update = (currentTime) => {
-      const elapsed = (currentTime - startTime) / duration;
-      const progress = Math.min(elapsed, 1);
-      start = progress * target;
-      element.textContent = Math.floor(start) + (suffix || '');
-      if (progress < 1) requestAnimationFrame(update);
-    };
-    requestAnimationFrame(update);
-  }
-
-  // Initialize counters and card animations
-  function initCounters() {
-    if (!elements.counters.length || !elements.aboutSection) return;
-
-    if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver(
-        (entries, observer) => {
-          if (entries[0].isIntersecting) {
-            elements.counters.forEach(counter =>
-              animateCounter(
-                counter,
-                parseInt(counter.dataset.target),
-                counter.dataset.suffix,
-                1500
-              )
-            );
-            elements.cards.forEach((card, index) => {
-              setTimeout(() => card.classList.add('visible'), index * 200);
-            });
-            observer.unobserve(elements.aboutSection);
-          }
-        },
-        { threshold: 0.3 }
-      );
-      observer.observe(elements.aboutSection);
-    } else {
-      elements.counters.forEach(counter =>
-        animateCounter(
-          counter,
-          parseInt(counter.dataset.target),
-          counter.dataset.suffix,
-          1500
-        )
-      );
-      elements.cards.forEach(card => card.classList.add('visible'));
-    }
-  }
-
-  // Feature: Video Debug
-  function initVideoDebug() {
-    if (!elements.heroVideo) return;
-    elements.heroVideo.addEventListener('error', () =>
-      console.error('Video failed to load: hero1.webm')
-    );
-    elements.heroVideo.addEventListener('loadeddata', () =>
-      console.log('Video loaded successfully')
-    );
-  }
-
-  // Feature: Scroll-triggered Animations
-  function initScrollAnimations() {
-    if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
-              observer.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.2 }
-      );
-      elements.slideUpElements.forEach(el => observer.observe(el));
-    } else {
-      elements.slideUpElements.forEach(el => el.classList.add('visible'));
-    }
-  }
-
-  // Feature: Contact Form with EmailJS
-  function initContactForm() {
-    if (
-      !elements.contactForm ||
-      !elements.submitBtn ||
-      !elements.btnText ||
-      !elements.btnSpinner ||
-      !elements.formInputs.email
-    ) {
-      console.error('Contact form elements missing');
-      return;
-    }
-
-    // Initialize EmailJS (ideally, this should be handled server-side)
-    emailjs.init('JQ8fQ2l-QXWp78b7U'); // Replace with your EmailJS User ID
-
-    let lastSubmitTime = 0;
-
-    elements.contactForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      // Rate limiting check
-      const currentTime = Date.now();
-      if (currentTime - lastSubmitTime < CONFIG.form.rateLimitInterval) {
-        alert('Please wait before submitting again.');
-        return;
-      }
-
-      // Validate and sanitize inputs
-      const inputs = {
-        name: elements.formInputs.name?.value?.trim() || '',
-        email: elements.formInputs.email?.value?.trim() || '',
-        phone: elements.formInputs.phone?.value?.trim() || '',
-        company: elements.formInputs.company?.value?.trim() || '',
-        message: elements.formInputs.message?.value?.trim() || ''
-      };
-
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(inputs.email)) {
-        alert('Please enter a valid email address.');
-        return;
-      }
-
-      // Length validation
-      if (
-        inputs.name.length > CONFIG.form.maxLengths.name ||
-        inputs.email.length > CONFIG.form.maxLengths.email ||
-        inputs.phone.length > CONFIG.form.maxLengths.phone ||
-        inputs.company.length > CONFIG.form.maxLengths.company ||
-        inputs.message.length > CONFIG.form.maxLengths.message
-      ) {
-        alert('Input exceeds maximum length.');
-        return;
-      }
-
-      // Sanitize inputs
-      const formData = {
-        name: sanitizeInput(inputs.name) || 'Not provided',
-        email: sanitizeInput(inputs.email),
-        phone: sanitizeInput(inputs.phone) || 'Not provided',
-        company: sanitizeInput(inputs.company) || 'Not provided',
-        message: sanitizeInput(inputs.message) || 'Not provided'
-      };
-
-      // Show loading state
-      elements.submitBtn.disabled = true;
-      elements.btnText.textContent = 'Sending...';
-      elements.btnSpinner.classList.remove(CONFIG.classes.hidden);
-
-      try {
-        const response = await emailjs.send('service_p4dfeu6', 'template_nh9ws5m', formData);
-        console.log('Email sent successfully!', response.status);
-        alert('Your message has been sent successfully!');
-        elements.contactForm.reset();
-        lastSubmitTime = Date.now();
-        // Redirect to thank-you page
-        window.location.href = '/thanku.html';
-      } catch (error) {
-        console.error('Failed to send email:', error.message);
-        alert('Failed to send your message. Please try again later.');
-      } finally {
-        elements.submitBtn.disabled = false;
-        elements.btnText.textContent = 'Send Message';
-        elements.btnSpinner.classList.add(CONFIG.classes.hidden);
-      }
-    });
-  }
-
-  // Feature: Newsletter Subscription
-  function subscribeNewsletter() {
+  // Newsletter Subscription with EmailJS
+  window.subscribeNewsletter = function () {
     const emailInput = document.getElementById('newsletter-email');
     const message = document.getElementById('newsletter-message');
-    if (!emailInput || !message) return;
+    const submitBtn = document.querySelector('.newsletter-button');
+    const CONFIG = {
+      emailjs: {
+        userId: 'JQ8fQ2l-QXWp78b7U',
+        serviceId: 'service_p4dfeu6',
+        newsletterTemplateId: 'template_g6wz49w'
+      },
+      rateLimitInterval: 5000,
+      classes: {
+        hidden: 'hidden'
+      }
+    };
+
+    if (!emailInput || !message) {
+      console.warn('Newsletter form elements missing: #newsletter-email or #newsletter-message');
+      if (window.dataLayer) {
+        window.dataLayer.push({
+          event: 'newsletter_error',
+          error: 'missing_elements'
+        });
+      }
+      return;
+    }
+
+    if (typeof emailjs === 'undefined') {
+      console.error('EmailJS SDK v3 not loaded. Check CDN inclusion.');
+      submitBtn.disabled = true;
+      message.classList.remove(CONFIG.classes.hidden);
+      message.innerHTML = '<span class="text-red-600">Error: Unable to load email service. Please try again later.</span>';
+      return;
+    }
+
+    try {
+      emailjs.init(CONFIG.emailjs.userId);
+      console.log('EmailJS SDK v3 initialized with user ID:', CONFIG.emailjs.userId);
+    } catch (error) {
+      console.error('Failed to initialize EmailJS SDK v3:', error.message);
+      submitBtn.disabled = true;
+      message.classList.remove(CONFIG.classes.hidden);
+      message.innerHTML = '<span class="text-red-600">Error: Unable to initialize email service. Please try again later.</span>';
+      console.warn('EmailJS SDK v3 initialization failed. Verify user ID and SDK version.');
+      return;
+    }
+
+    const currentTime = Date.now();
+    let lastNewsletterSubmitTime = parseInt(localStorage.getItem('lastNewsletterSubmitTime') || '0', 10);
+
+    if (currentTime - lastNewsletterSubmitTime < CONFIG.rateLimitInterval) {
+      message.textContent = 'Please wait a few seconds before subscribing again.';
+      message.classList.remove(CONFIG.classes.hidden, 'text-green-600');
+      message.classList.add('text-red-600');
+      setTimeout(() => {
+        message.classList.add(CONFIG.classes.hidden);
+        message.textContent = '';
+      }, CONFIG.rateLimitInterval);
+      return;
+    }
 
     const email = emailInput.value.trim();
-
-    if (!email) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       message.textContent = 'Please enter a valid email address.';
-      message.classList.remove('hidden', 'text-green-400');
-      message.classList.add('text-red-400');
+      message.classList.remove(CONFIG.classes.hidden, 'text-green-600');
+      message.classList.add('text-red-600');
+      emailInput.focus();
+      if (window.dataLayer) {
+        window.dataLayer.push({
+          event: 'newsletter_error',
+          error: 'invalid_email'
+        });
+      }
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      message.textContent = 'Please enter a valid email address.';
-      message.classList.remove('hidden', 'text-green-400');
-      message.classList.add('text-red-400');
-      return;
-    }
+    message.textContent = 'Subscribing...';
+    message.classList.remove(CONFIG.classes.hidden, 'text-red-600', 'text-green-600');
 
-    message.textContent = 'Thank you for subscribing!';
-    message.classList.remove('hidden', 'text-red-400');
-    message.classList.add('text-green-400');
-    emailInput.value = '';
+    emailjs
+      .send(CONFIG.emailjs.serviceId, CONFIG.emailjs.newsletterTemplateId, { email })
+      .then((response) => {
+        console.log('Newsletter subscription successful:', response.status, response.text);
+        message.textContent = 'Thank you for subscribing to our global insights!';
+        message.classList.add('text-green-600');
+        emailInput.value = '';
+        lastNewsletterSubmitTime = Date.now();
+        localStorage.setItem('lastNewsletterSubmitTime', lastNewsletterSubmitTime.toString());
+        if (window.dataLayer) {
+          window.dataLayer.push({
+            event: 'newsletter_subscription',
+            email_subscribed: true
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Newsletter subscription error:', {
+          message: error.message,
+          status: error.status,
+          text: error.text
+        });
+        message.textContent = 'Failed to subscribe. Please check your email or try again later.';
+        message.classList.add('text-red-600');
+        if (window.dataLayer) {
+          window.dataLayer.push({
+            event: 'newsletter_error',
+            error: 'subscription_failed',
+            details: error.message || 'Unknown error'
+          });
+        }
+      });
+  };
+
+  // Animation Observer
+  const animateElements = document.querySelectorAll('.animate-slide-up, .animate-fade-in');
+  const animationObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        el.style.animationDelay = el.dataset.delay || '0s';
+        el.classList.add('animated');
+        animationObserver.unobserve(el);
+      }
+    });
+  }, { rootMargin: '0px 0px -50px 0px' });
+
+  animateElements.forEach(el => animationObserver.observe(el));
+
+  // Share Buttons Tracking
+  const shareButtons = document.querySelectorAll('.share-buttons a');
+  shareButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      window.dataLayer.push({
+        event: 'share_click',
+        platform: button.getAttribute('aria-label').replace('Share on ', ''),
+        url: button.href
+      });
+    });
+  });
+
+  // Lazy Load Images
+  const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+  if ('IntersectionObserver' in window) {
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src || img.src;
+          img.removeAttribute('data-src');
+          observer.unobserve(img);
+        }
+      });
+    }, { rootMargin: '0px 0px 200px 0px' });
+    lazyImages.forEach(img => imageObserver.observe(img));
+  } else {
+    lazyImages.forEach(img => {
+      img.src = img.dataset.src || img.src;
+      img.removeAttribute('data-src');
+    });
   }
-
-  // Feature: Initialize Lucide Icons
-  function initLucideIcons() {
-    if (typeof lucide === 'undefined') {
-      console.error('Lucide library not loaded');
-      return;
-    }
-    lucide.createIcons();
-  }
-
-  // Initialize all features
-  function initialize() {
-    try {
-      initLucideIcons();
-      initVideoDebug();
-      initMobileMenu();
-      initNavScroll();
-      initServiceModal();
-      initCounters();
-      initScrollAnimations();
-      initContactForm();
-    } catch (error) {
-      console.error('Initialization error:', error);
-    }
-  }
-
-  initialize();
 });

@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+ document.addEventListener('DOMContentLoaded', () => {
       // Function to format date
       function formatDate(dateString) {
         if (!dateString) {
@@ -46,8 +46,29 @@ document.addEventListener('DOMContentLoaded', () => {
           posts = fallbackPost;
         }
 
+        // Get current page URL path, normalized
+        const currentUrl = window.location.pathname.toLowerCase().replace(/\/$/, '');
+        console.log('Current page URL path:', currentUrl);
+
+        // Filter out the current post if on a blog post page
+        let filteredPosts = posts.filter(post => {
+          if (!post.url) {
+            console.warn('Post missing URL:', post.title);
+            return true; // Include posts without URLs
+          }
+          const postUrl = post.url.toLowerCase().replace(/^https?:\/\/[^\/]+/, '').replace(/\/$/, '');
+          console.log(`Comparing post URL: ${postUrl} with current URL: ${currentUrl}`);
+          return postUrl !== currentUrl;
+        });
+
+        // If filtering removes all posts, use all posts to avoid empty slider
+        if (filteredPosts.length === 0) {
+          console.warn('No posts remain after filtering. Using all posts.');
+          filteredPosts = posts;
+        }
+
         // Map posts to ensure all required fields
-        const displayPosts = posts.map(post => ({
+        const displayPosts = filteredPosts.map(post => ({
           title: post.title || 'Untitled',
           datePublished: post.datePublished || null,
           imageWebp: post.imageWebp || '',

@@ -19,6 +19,24 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://sangrow.in/services</loc>
+    <lastmod>2025-06-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+   <url>
+    <loc>https://sangrow.in/blog</loc>
+    <lastmod>2025-06-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://sangrow.in/contact</loc>
+    <lastmod>2025-06-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://www.sangrow.in/blog/green-marketing-trends-2025</loc>
     <lastmod>2025-06-17</lastmod>
     <changefreq>weekly</changefreq>
@@ -45,6 +63,18 @@
   <url>
     <loc>https://www.sangrow.in/blog/Omnichannel-Marketing</loc>
     <lastmod>2025-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+   <url>
+    <loc>https://sangrow.in/blog/ai-overuse-memory-critical-thinking-2025</loc>
+    <lastmod>2025-07-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sangrow.in/blog/seo-agriculture-equipment-marketing-2025</loc>
+    <lastmod>2025-07-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

@@ -434,6 +434,27 @@ const chartConfigs = [
     yAxisMax: 30,
     gtmEvent: 'ai-usage-engagement'
   }
+  , {
+    canvasId: 'seo-adoption-chart',
+    errorId: 'chart-error',
+    title: 'Engagement Rate Improvements by Agriculture Market Trends (2025)',
+    labels:['Keyword Optimization', 'Mobile Optimization', 'Local SEO'],
+    data: [75,68,72],
+    backgroundColors: [
+      'rgba(90, 116, 193, 0.8)',
+      'rgba(165, 105, 65, 0.8)',
+      'rgba(206, 84, 104, 0.8)'
+     
+    ],
+    borderColors: [
+      'rgb(30, 177, 131)',
+      'rgb(213, 77, 24)',
+      'rgb(73, 24, 150)'
+    
+    ],
+    yAxisMax: 100,
+    gtmEvent: 'agriculture-market-engagemen'
+  }
 ];
 
 const initChart = (config) => {
